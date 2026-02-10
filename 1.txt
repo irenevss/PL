@@ -1,0 +1,45 @@
+##identificadores erroneos
+_
+__
+
+_hola
+##literal real erroneo
+125.
+
+##supuestos literales numericos que se tokenizan en varios elementos
+010
+10.10
+10.10e+25
+10.1e+010
+
+##elementos de Tiny que no son elementos de Tiny0
+%
+[
+]
+.
+->
+@
+
+##palabras reservadas de Tiny que en Tiny0 deben tokenizarse como identificadores
+string
+null
+dectype
+decproc
+end_proc
+ref
+if
+end_if
+else
+while
+end_while
+array
+of
+record
+end_record
+pointer
+new
+dispose
+input 
+output
+block
+end_block

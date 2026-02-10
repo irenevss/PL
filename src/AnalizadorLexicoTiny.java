@@ -76,6 +76,8 @@ public class AnalizadorLexicoTiny {
                         transita(Estado.REC_PCIE);
                     else if (hayEOF())
                         return unidadEof();
+                    else if (hayAlm())
+                        transitaIgnorando(Estado.REC_ALM);
                     else
                         error();
                     break;
@@ -167,6 +169,13 @@ public class AnalizadorLexicoTiny {
                         transitaIgnorando(Estado.REC_DOBLEGUION);
                     break;
 
+                case REC_COMENT:
+                    if(hayNL() || hayEOF())
+                        transitaIgnorando(Estado.INICIO);
+                    else
+                        transitaIgnorando(Estado.REC_COMENT);
+                    break;
+
                 case REC_IDEC:
                     if (hayDigito())
                         transita(Estado.REC_DEC);
@@ -195,11 +204,12 @@ public class AnalizadorLexicoTiny {
                     break;
 
                 case REC_0:
-                    if (hayPunto()) {
+                    if (hayPunto())
                         transita(Estado.REC_IDEC);
-                        break;
-                    }
-                    return unidadEnt();
+                    else if (hayExponente())
+                        transita(Estado.REC_EXP);
+                    else return unidadEnt();
+                    break;
 
                 case REC_EXP:
                     if (hayMas() || hayMenos())
@@ -215,6 +225,8 @@ public class AnalizadorLexicoTiny {
                 case REC_EXP_SIGNO:
                     if (hayDigitoPos())
                         transita(Estado.REC_EXP_ENT);
+                    else if (hayCero())
+                        transita(Estado.REC_EXP0);
                     else
                         error();
                     break;
@@ -231,6 +243,16 @@ public class AnalizadorLexicoTiny {
                         transita(Estado.REC_ID);
                     else
                         return unidadId();
+                    break;
+
+                case REC_EXP0:
+                    return unidadReal();
+
+                case REC_ALM:
+                    if(hayAlm())
+                        transitaIgnorando(Estado.REC_COMENT);
+                    else
+                        error();
                     break;
 
                 default:
@@ -327,6 +349,7 @@ public class AnalizadorLexicoTiny {
     private boolean hayDosPuntos() {
         return sigCar == ':';
     }
+    private boolean hayAlm(){ return sigCar == '#';}
 
     private boolean hayIgnorable() {
         return sigCar == ' ' || sigCar == '\t' || sigCar == '\n' || sigCar == '\r' || sigCar == '\b';
@@ -337,7 +360,7 @@ public class AnalizadorLexicoTiny {
     }
 
     private UnidadLexica unidadId() {
-        switch (lex.toString().toLowerCase()) {
+        switch (lex.toString()) {
             case "program":
                 return new UnidadLexicaUnivaluada(filaInicio, columnaInicio, ClaseLexica.PROGRAM);
             case "end_program":
@@ -492,12 +515,32 @@ public class AnalizadorLexicoTiny {
     }
 
     public static void main(String[] arg) throws IOException {
-        Reader input = new InputStreamReader(new FileInputStream("input.txt"));
+        Reader input = new InputStreamReader(new FileInputStream("sample2.txt"));
         AnalizadorLexicoTiny al = new AnalizadorLexicoTiny(input);
-        UnidadLexica unidad;
+        UnidadLexica unidad = null;
+        boolean error;
         do {
-            unidad = al.sigToken();
-            System.out.println(unidad);
-        } while (unidad.clase() != ClaseLexica.EOF);
+            error = false;
+            try {
+                unidad = al.sigToken();
+                imprime(unidad);
+            } catch (AnalizadorLexicoTiny.ECaracterInesperado e) {
+                System.out.println("ERROR");
+                error = true;
+            }
+        } while (error || unidad.clase() != ClaseLexica.EOF);
+    }
+
+    private static void imprime(UnidadLexica unidad) {
+        switch (unidad.clase()) {
+            case IDENT:
+            case LIT_ENTERO:
+            case LIT_REAL:
+            case LIT_BOOL:
+                System.out.println(unidad.lexema());
+                break;
+            default:
+                System.out.println(unidad.clase().getImage());
+        }
     }
 }

@@ -34,5 +34,8 @@ public enum Estado {
     REC_EXP_SIGNO,
     REC_EXP_ENT,
 
+    REC_ALM,
+    REC_COMENT,
+
     EOF
 }
