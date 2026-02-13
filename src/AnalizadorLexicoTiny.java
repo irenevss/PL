@@ -515,12 +515,33 @@ public class AnalizadorLexicoTiny {
     }
 
     public static void main(String[] arg) throws IOException {
-        Reader input = new InputStreamReader(new FileInputStream("sample2.txt"));
+        Reader input = new InputStreamReader(new FileInputStream("0.txt"));
         AnalizadorLexicoTiny al = new AnalizadorLexicoTiny(input);
         UnidadLexica unidad = null;
+        boolean error = false;
+
         do {
-            unidad = al.sigToken();
-            System.out.println(unidad);
-        } while (unidad.clase() != ClaseLexica.EOF);
+            error = false;
+            try {
+                unidad = al.sigToken();
+                imprime(unidad);
+            } catch (AnalizadorLexicoTiny.ECaracterInesperado e) {
+                System.out.println("ERROR");
+                error = true;
+            }
+        } while (error || unidad.clase() != ClaseLexica.EOF);
+    }
+
+    private static void imprime(UnidadLexica unidad) {
+        switch (unidad.clase()) {
+            case IDENT:
+            case LIT_ENTERO:
+            case LIT_REAL:
+            case LIT_BOOL:
+                System.out.println(unidad.lexema());
+                break;
+            default:
+                System.out.println(unidad.clase().getImage());
+        }
     }
 }
