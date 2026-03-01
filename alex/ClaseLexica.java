@@ -1,3 +1,5 @@
+package alex;
+
 public enum ClaseLexica {
     IDENT, LIT_ENTERO, LIT_REAL, LIT_BOOL,
 

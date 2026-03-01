@@ -1,15 +1,11 @@
-import java.io.FileInputStream;
+package alex;
+
+import errors.GestorErroresTiny;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
 
 public class AnalizadorLexicoTiny {
-
-    public static class ECaracterInesperado extends RuntimeException {
-        public ECaracterInesperado(String msg) {
-            super(msg);
-        }
-    };
 
     private Reader input; // Flujo de entrada
     private StringBuffer lex; // Lexema del componente que se está reconociendo
@@ -19,11 +15,13 @@ public class AnalizadorLexicoTiny {
     private int filaActual; // Fila en el punto de lectura actual
     private int columnaActual; // Columna en el punto de lectura actual
     private Estado estado; // Estado del autómata
+    private GestorErroresTiny gestor;
 
     private static String NL = System.getProperty("line.separator");
 
-    public AnalizadorLexicoTiny(Reader input) throws IOException {
+    public AnalizadorLexicoTiny(Reader input, GestorErroresTiny gestor) throws IOException {
         this.input = input;
+        this.gestor = gestor;
         lex = new StringBuffer();
         sigCar = input.read();
         filaActual = 1;
@@ -506,30 +504,8 @@ public class AnalizadorLexicoTiny {
 
     private void error() {
         int curCar = sigCar;
-        try {
-            sigCar();
-        } catch (IOException e) {
-        }
-        throw new ECaracterInesperado(
-                "(" + filaActual + ',' + columnaActual + "):Caracter inexperado:" + (char) curCar);
-    }
-
-    public static void main(String[] arg) throws IOException {
-        Reader input = new InputStreamReader(new FileInputStream("0.txt"));
-        AnalizadorLexicoTiny al = new AnalizadorLexicoTiny(input);
-        UnidadLexica unidad = null;
-        boolean error = false;
-
-        do {
-            error = false;
-            try {
-                unidad = al.sigToken();
-                imprime(unidad);
-            } catch (AnalizadorLexicoTiny.ECaracterInesperado e) {
-                System.out.println("ERROR");
-                error = true;
-            }
-        } while (error || unidad.clase() != ClaseLexica.EOF);
+        try { sigCar(); } catch (IOException e) {}
+        gestor.errorLexico(filaActual, columnaActual, "Caracter inesperado: " + (char) curCar);
     }
 
     private static void imprime(UnidadLexica unidad) {

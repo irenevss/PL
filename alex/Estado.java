@@ -1,3 +1,5 @@
+package alex;
+
 public enum Estado {
     INICIO,
 
