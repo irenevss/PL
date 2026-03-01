@@ -1,0 +1,4 @@
+program
+## error: falta :=
+x = 5
+end_program

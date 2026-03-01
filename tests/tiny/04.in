@@ -1,0 +1,7 @@
+## Error - binario no asocia 
+program
+## bien
+  x := (x < y) = z;
+## error
+  x := x < y = z
+end_program  

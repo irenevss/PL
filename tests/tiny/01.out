@@ -1,0 +1,8 @@
+<program>
+<decvar>
+x
+:
+<int>
+--
+<end_program>
+EOF

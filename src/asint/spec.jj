@@ -1,0 +1,227 @@
+options {
+  STATIC = false;
+  DEBUG_PARSER = true;
+}
+
+PARSER_BEGIN(AnalizadorSintacticoTiny)
+package asint;
+
+import java.io.FileInputStream;
+
+public class AnalizadorSintacticoTiny {
+    protected void newToken(Token t) { }
+    public static void main(String[] args) {
+        if (args.length == 0) {
+            System.err.println("Por favor, especifique el archivo a analizar.");
+            return;
+        }
+        try {
+            FileInputStream fis = new FileInputStream(args[0]);
+            AnalizadorSintacticoTiny parser = new AnalizadorSintacticoTiny(fis);
+            parser.S();
+            System.out.println("OK");
+        } catch (TokenMgrError e) {
+            System.err.println("ERROR LEXICO: " + e.getMessage());
+        } catch (ParseException e) {
+            System.err.println("ERROR SINTACTICO: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("OTRO ERROR: " + e.getMessage());
+        }
+    }
+}
+PARSER_END(AnalizadorSintacticoTiny)
+
+SKIP : {
+  " " | "\t" | "\r" | "\n" | "\b"
+| < "##" (~["\n"])* >
+}
+
+TOKEN : {
+  < PROGRAM: "program" >
+| < END_PROGRAM: "end_program" >
+| < INT: "int" >
+| < REAL: "real" >
+| < BOOL: "bool" >
+| < STRING: "string" >
+| < NULL: "null" >
+| < TRUE: "true" >
+| < FALSE: "false" >
+| < DECTYPE: "dectype" >
+| < DECVAR: "decvar" >
+| < DECPROC: "decproc" >
+| < END_PROC: "end_proc" >
+| < REF: "ref" >
+| < IF: "if" >
+| < END_IF: "end_if" >
+| < ELSE: "else" >
+| < WHILE: "while" >
+| < END_WHILE: "end_while" >
+| < ARRAY: "array" >
+| < OF: "of" >
+| < RECORD: "record" >
+| < END_RECORD: "end_record" >
+| < POINTER: "pointer" >
+| < NEW: "new" >
+| < DISPOSE: "dispose" >
+| < INPUT: "input" >
+| < OUTPUT: "output" >
+| < BLOCK: "block" >
+| < END_BLOCK: "end_block" >
+}
+
+TOKEN : {
+  < MAS: "+" >
+| < MENOS: "-" >
+| < POR: "*" >
+| < DIV: "/" >
+| < MOD: "%" >
+| < MENOR: "<" >
+| < MAYOR: ">" >
+| < MENOR_IGUAL: "<=" >
+| < MAYOR_IGUAL: ">=" >
+| < IGUAL: "=" >
+| < DISTINTO: "<>" >
+| < PAP: "(" >
+| < PCIERRE: ")" >
+| < PUNTO_COMA: ";" >
+| < DOS_PUNTOS: ":" >
+| < ASIGNACION: ":=" >
+| < CAP: "[" >
+| < CCIERRE: "]" >
+| < PUNTO: "." >
+| < FLECHA: "->" >
+| < AND: "&" >
+| < OR: "|" >
+| < NOT: "!" >
+| < ARROBA: "@" >
+| < COMA: "," >
+| < SEPARADOR: "--" >
+}
+
+TOKEN : {
+  < LITERAL_REAL: <PARTE_ENTERA> (<PARTE_DECIMAL> | <PARTE_EXPONENCIAL> | <PARTE_DECIMAL> <PARTE_EXPONENCIAL>) >
+| < LITERAL_ENTERO: <PARTE_ENTERA> >
+| < ID: <LETRA> (<LETRA> | <DIGITO> | "_")* >
+| < CADENA_LITERAL: "'" ( ~["'","\\"] | "\\b" | "\\r" | "\\t" | "\\n" )* "'" >
+| < #LETRA: ["a"-"z","A"-"Z"] >
+| < #DIGITO: ["0"-"9"] >
+| < #DIGITO_POS: ["1"-"9"] >
+| < #PARTE_ENTERA: (["+","-"])? ("0" | <DIGITO_POS> (<DIGITO>)*) >
+| < #PARTE_DECIMAL: "." ("0" | (<DIGITO>)* <DIGITO_POS>) >
+| < #PARTE_EXPONENCIAL: ["e","E"] <PARTE_ENTERA> >
+}
+
+// Sección declaraciones
+void S() : {} { <PROGRAM> LDec_0() Instrs_0() <END_PROGRAM> <EOF> }
+
+void LDec_0() : {} { LDec() <SEPARADOR> | {} }
+
+void LDec() : {} { Dec() RLDec() }
+
+void RLDec() : {} { <PUNTO_COMA> Dec() RLDec() | {} }
+
+void Dec() : {} { DecVar() | DecTipo() | DecProc() }
+
+void Tipo() : {} {
+    <INT> 
+  | <REAL> 
+  | <BOOL> 
+  | <STRING> 
+  | <ID> 
+  | <ARRAY> <CAP> <LITERAL_ENTERO> <CCIERRE> <OF> Tipo()
+  | <POINTER> Tipo()
+  | <RECORD> ListaRecord() <END_RECORD>
+}
+
+void ListaRecord() : {} { CamposRecord() RListaRecord() }
+
+void RListaRecord() : {} { <PUNTO_COMA> CamposRecord() RListaRecord() | {} }
+
+void CamposRecord() : {} { <ID> <DOS_PUNTOS> Tipo() }
+
+void DecVar() : {} { <DECVAR> <ID> <DOS_PUNTOS> Tipo() }
+
+void DecTipo() : {} { <DECTYPE> <ID> <DOS_PUNTOS> Tipo() }
+
+void DecProc() : {} { <DECPROC> <ID> <PAP> ProcParams_0() <PCIERRE> LDec_0() Instrs_0() <END_PROC> }
+
+void ProcParams_0() : {} { ProcParams() | {} }
+void ProcParams() : {} { Param() RProcParam() }
+void RProcParam() : {} { <COMA> Param() RProcParam() | {} }
+void Param() : {} { <REF> <ID> <DOS_PUNTOS> Tipo() | <ID> <DOS_PUNTOS> Tipo() }
+
+// Sección instrucciones
+void Instrs_0() : {} { LInstr() | {} }
+void LInstr() : {} { Instr() RLInstr() }
+void RLInstr() : {} { <PUNTO_COMA> Instr() RLInstr() | {} }
+
+void Instr() : {} {
+    InstrAsig()
+  | InstrIfOrIfElse()
+  | InstrWhile()
+  | InstrLectura()
+  | InstrEscritura()
+  | InstrReserva()
+  | InstrLiberacion()
+  | InstrInvocar()
+  | InstrCompuesta()
+}
+
+void InstrAsig() : {} { E0() <ASIGNACION> E0() }
+
+void InstrIfOrIfElse() : {} {
+    <IF> E0() <DOS_PUNTOS> Instrs_0() ( <END_IF> | <ELSE> Instrs_0() <END_IF> )
+}
+
+void InstrWhile() : {} { <WHILE> E0() <DOS_PUNTOS> Instrs_0() <END_WHILE> }
+
+void InstrLectura() : {} { <INPUT> E0() }
+
+void InstrEscritura() : {} { <OUTPUT> E0() }
+
+void InstrReserva() : {} { <NEW> E0() }
+
+void InstrLiberacion() : {} { <DISPOSE> E0() }
+
+void InstrInvocar() : {} { <ARROBA> <ID> <PAP> ProcActualParams_0() <PCIERRE> }
+
+void ProcActualParams_0() : {} { ProcActualParams() | {} }
+void ProcActualParams() : {} { ActualParam() RProcActualParam() }
+void RProcActualParam() : {} { <COMA> ActualParam() RProcActualParam() | {} }
+void ActualParam() : {} { E0() }
+
+void InstrCompuesta() : {} { <BLOCK> LDec_0() Instrs_0() <END_BLOCK> }
+
+// Sección expresiones
+void E0() : {} { E1() RE0() }
+void RE0() : {} { Op0() E1() | {} }
+void Op0() : {} { <MENOR> | <MAYOR> | <MENOR_IGUAL> | <MAYOR_IGUAL> | <IGUAL> | <DISTINTO> }
+
+void E1() : {} { E2() RE1() RE1_prime() }
+void RE1_prime() : {} { Op1() E2() RE1_prime() | {} }
+void Op1() : {} { <MAS> | <MENOS> }
+void RE1() : {} { <OR> E2() | {} }
+
+void E2() : {} { E3() RE2() RE2_prime() }
+void RE2_prime() : {} { Op2() E3() RE2_prime() | {} }
+void Op2() : {} { <POR> | <DIV> | <MOD> }
+void RE2() : {} { <AND> E3() | {} }
+
+void E3() : {} { <MENOS> E3() | <NOT> E4() | E4() }
+
+void E4() : {} { E5() RE3_prime() }
+void RE3_prime() : {} { RE3() RE3_prime() | {} }
+void RE3() : {} { <PUNTO> <ID> | <FLECHA> <ID> | <CAP> E0() <CCIERRE> }
+
+void E5() : {} { <POR> E5() | E6() }
+
+void E6() : {} {
+    <ID> 
+  | <LITERAL_ENTERO>
+  | <LITERAL_REAL>
+  | <TRUE>
+  | <FALSE>
+  | <CADENA_LITERAL>
+  | <NULL>
+  | <PAP> E0() <PCIERRE>
+}

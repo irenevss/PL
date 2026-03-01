@@ -1,0 +1,17 @@
+<program>
+x
+:=
+x
+|
+(
+y
+|
+z
+)
+;
+x
+:=
+x
+|
+y
+ERROR_SINTACTICO

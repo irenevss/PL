@@ -1,0 +1,5 @@
+## Programa con declaraciones, sin instrucciones 
+program
+  decvar x:int
+  --
+end_program  
