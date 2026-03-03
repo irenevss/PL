@@ -1,5 +1,6 @@
+package asint_cup;
+
 import alex.AnalizadorLexicoTiny;
-import asint_cup.AnalizadorSintacticoTinyDJ;
 import errors.GestionErroresTiny.ErrorLexico;
 import errors.GestionErroresTiny.ErrorSintactico;
 import java.io.InputStreamReader;
