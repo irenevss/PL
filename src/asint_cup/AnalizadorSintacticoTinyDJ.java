@@ -10,7 +10,15 @@ public class AnalizadorSintacticoTinyDJ extends AnalizadorSintacticoTiny {
 
     @Override
     public void debug_shift(Symbol token) {
-        System.out.println(token.value);
+        if (token instanceof alex.UnidadLexica) {
+            System.out.println(((alex.UnidadLexica) token).lexema());
+        } else if (token.sym == ClaseLexica.EOF) {
+            System.out.println("EOF");
+        } else if (token.value != null) {
+            System.out.println(token.value);
+        } else {
+            System.out.println("TOKEN_" + token.sym);
+        }
     }
 
     @Override

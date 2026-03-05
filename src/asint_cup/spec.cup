@@ -12,7 +12,11 @@ scan with {:
 parser code {:
     private GestionErroresTiny errores;
     public void syntax_error(Symbol unidadLexica) {
-        errores.errorSintactico((UnidadLexica)unidadLexica);
+        if (unidadLexica instanceof UnidadLexica) {
+            errores.errorSintactico((UnidadLexica)unidadLexica);
+        } else {
+            System.err.println("Error sintáctico: símbolo inesperado " + unidadLexica);
+        }
     }
 :};
 
@@ -31,24 +35,21 @@ terminal PROGRAM, END_PROGRAM, INT, REAL, BOOL, STRING, NULL, TRUE, FALSE,
          FLECHA, AND, OR, NOT, ARROBA, COMA, SEPARADOR, ID, LITERAL_ENTERO, 
          LITERAL_REAL, CADENA_LITERAL;
 
-non terminal S, LDec_0, Instrs_0, LDec, RLDec, Dec, DecVar, DecTipo, DecProc, 
-             Tipo, ListaRecord, CamposRecord, RListaRecord, ProcParams_0, 
-             ProcParams, Param, RProcParam, LInstr, RLInstr, Instr, InstrAsig, 
+non terminal S, LDec_0, Instrs_0, LDec, Dec, DecVar, DecTipo, DecProc, 
+             Tipo, ListaRecord, CamposRecord, ProcParams_0, 
+             ProcParams, Param, LInstr, Instr, InstrAsig, 
              InstrIf, InstrIfElse, InstrWhile, InstrLectura, InstrEscritura, 
              InstrReserva, InstrLiberacion, InstrInvocar, InstrCompuesta, 
-             ProcActualParams_0, ProcActualParams, ActualParam, RProcActualParam, 
-             E0, RE0, Op0, E1, RE1, RE1_prime, Op1, E2, RE2, RE2_prime, Op2, 
-             E3, E4, RE3, RE3_prime, E5, E6;
+             ProcActualParams_0, ProcActualParams, ActualParam,
+             E0, Op0, E1, Op1, E2, Op2, E3, E4, E5, E6;
 
 S ::= PROGRAM LDec_0 Instrs_0 END_PROGRAM ;
 
 LDec_0 ::= LDec SEPARADOR 
          | ;
 
-LDec ::= Dec RLDec ;
-
-RLDec ::= PUNTO_COMA Dec RLDec
-        | ;
+LDec ::= LDec PUNTO_COMA Dec
+       | Dec ;
 
 Dec ::= DecVar
       | DecTipo
@@ -60,17 +61,16 @@ Tipo ::= INT
        | STRING
        | ID
        | ARRAY CAP LITERAL_ENTERO CCIERRE OF Tipo
-       | POINTER Tipo
-       | RECORD ListaRecord END_RECORD ;
+       | RECORD ListaRecord END_RECORD
+       | POINTER Tipo ;
 
-ListaRecord ::= CamposRecord RListaRecord ;
-
-RListaRecord ::= PUNTO_COMA CamposRecord RListaRecord
-               | ;
+ListaRecord ::= ListaRecord PUNTO_COMA CamposRecord
+              | CamposRecord ;
 
 CamposRecord ::= ID DOS_PUNTOS Tipo ;
 
 DecVar ::= DECVAR ID DOS_PUNTOS Tipo ;
+
 DecTipo ::= DECTYPE ID DOS_PUNTOS Tipo ;
 
 DecProc ::= DECPROC ID PAP ProcParams_0 PCIERRE LDec_0 Instrs_0 END_PROC ;
@@ -78,10 +78,8 @@ DecProc ::= DECPROC ID PAP ProcParams_0 PCIERRE LDec_0 Instrs_0 END_PROC ;
 ProcParams_0 ::= ProcParams
                | ;
 
-ProcParams ::= Param RProcParam ;
-
-RProcParam ::= COMA Param RProcParam
-             | ;
+ProcParams ::= ProcParams COMA Param
+             | Param ;
 
 Param ::= REF ID DOS_PUNTOS Tipo
         | ID DOS_PUNTOS Tipo ;
@@ -89,10 +87,8 @@ Param ::= REF ID DOS_PUNTOS Tipo
 Instrs_0 ::= LInstr
            | ;
 
-LInstr ::= Instr RLInstr ;
-
-RLInstr ::= PUNTO_COMA Instr RLInstr
-          | ;
+LInstr ::= LInstr PUNTO_COMA Instr
+         | Instr ;
 
 Instr ::= InstrAsig
         | InstrIf
@@ -106,66 +102,58 @@ Instr ::= InstrAsig
         | InstrCompuesta ;
 
 InstrAsig ::= E0 ASIGNACION E0 ;
+
 InstrIf ::= IF E0 DOS_PUNTOS Instrs_0 END_IF ;
+
 InstrIfElse ::= IF E0 DOS_PUNTOS Instrs_0 ELSE Instrs_0 END_IF ;
+
 InstrWhile ::= WHILE E0 DOS_PUNTOS Instrs_0 END_WHILE ;
+
 InstrLectura ::= INPUT E0 ;
+
 InstrEscritura ::= OUTPUT E0 ;
+
 InstrReserva ::= NEW E0 ;
+
 InstrLiberacion ::= DISPOSE E0 ;
+
 InstrInvocar ::= ARROBA ID PAP ProcActualParams_0 PCIERRE ;
 
 ProcActualParams_0 ::= ProcActualParams
-                    | ;
+                     | ;
 
-ProcActualParams ::= ActualParam RProcActualParam ;
-
-RProcActualParam ::= COMA ActualParam RProcActualParam
-                  | ;
+ProcActualParams ::= ProcActualParams COMA ActualParam
+                   | ActualParam ;
 
 ActualParam ::= E0 ;
 
 InstrCompuesta ::= BLOCK LDec_0 Instrs_0 END_BLOCK ;
 
-E0 ::= E1 RE0 ;
-
-RE0 ::= Op0 E1
-      | ;
+E0 ::= E1 Op0 E1
+     | E1 ;
 
 Op0 ::= MENOR | MAYOR | MENOR_IGUAL | MAYOR_IGUAL | IGUAL | DISTINTO ;
 
-E1 ::= E2 RE1 RE1_prime ;
-
-RE1_prime ::= Op1 E2 RE1_prime
-            | ;
+E1 ::= E1 Op1 E2
+     | E2 OR E2
+     | E2 ;
 
 Op1 ::= MAS | MENOS ;
 
-RE1 ::= OR E2
-      | ;
-
-E2 ::= E3 RE2 RE2_prime ;
-
-RE2_prime ::= Op2 E3 RE2_prime
-            | ;
+E2 ::= E2 Op2 E3
+     | E3 AND E3
+     | E3 ;
 
 Op2 ::= POR | DIV | MOD ;
-
-RE2 ::= AND E3
-      | ;
 
 E3 ::= MENOS E3
      | NOT E4
      | E4 ;
 
-E4 ::= E5 RE3_prime ;
-
-RE3_prime ::= RE3 RE3_prime
-            | ;
-
-RE3 ::= PUNTO ID
-      | FLECHA ID
-      | CAP E0 CCIERRE ;
+E4 ::= E4 CAP E0 CCIERRE
+     | E4 PUNTO ID
+     | E4 FLECHA ID
+     | E5 ;
 
 E5 ::= POR E5
      | E6 ;
