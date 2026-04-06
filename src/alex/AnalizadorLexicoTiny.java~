@@ -4,7 +4,6 @@
 
 package alex;
 
-import java_cup.runtime.Symbol;
 import asint_cup.ClaseLexica;
 import errors.GestionErroresTiny;
 
