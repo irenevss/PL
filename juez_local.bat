@@ -11,7 +11,7 @@ set /a passed=0
 set /a failed=0
 
 for %%f in (tests\tiny\*.in) do (
-    java -Dfile.encoding=UTF-8 -cp "bin;cup.jar" asint_cup.DomJudge < "%%f" > "temp_out.txt"
+    java -Dfile.encoding=UTF-8 -cp "bin;cup.jar" DomJudge < "%%f" > "temp_out.txt"
     fc /W "temp_out.txt" "tests\tiny\%%~nf.out" > nul
     
     if !errorlevel! equ 0 (

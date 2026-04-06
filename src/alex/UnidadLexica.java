@@ -5,11 +5,14 @@ import java_cup.runtime.Symbol;
 public class UnidadLexica extends Symbol {
   private int fila;
   private int columna;
+  private String lexema;
 
   public UnidadLexica(int fila, int columna, int clase, String lexema) {
-    super(clase, lexema);
+    super(clase, null);
     this.fila = fila;
     this.columna = columna;
+    this.lexema = lexema;
+    this.value = this;
   }
 
   public int clase() {
@@ -17,7 +20,7 @@ public class UnidadLexica extends Symbol {
   }
 
   public String lexema() {
-    return (String) value;
+    return lexema;
   }
 
   public int fila() {

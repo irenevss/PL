@@ -11,6 +11,16 @@ scan with {:
 
 parser code {:
     private GestionErroresTiny errores;
+     private ASTNode ast;
+
+     public void setAST(ASTNode ast) {
+          this.ast = ast;
+     }
+
+     public ASTNode getAST() {
+          return ast;
+     }
+
     public void syntax_error(Symbol unidadLexica) {
         if (unidadLexica instanceof UnidadLexica) {
             errores.errorSintactico((UnidadLexica)unidadLexica);
@@ -26,143 +36,285 @@ init with {:
    alex.fijaGestionErrores(errores);
 :};
 
-terminal PROGRAM, END_PROGRAM, INT, REAL, BOOL, STRING, NULL, TRUE, FALSE, 
-         DECTYPE, DECVAR, DECPROC, END_PROC, REF, IF, END_IF, ELSE, WHILE, 
-         END_WHILE, ARRAY, OF, RECORD, END_RECORD, POINTER, NEW, DISPOSE, 
-         INPUT, OUTPUT, BLOCK, END_BLOCK, MAS, MENOS, POR, DIV, MOD, 
-         MENOR, MAYOR, MENOR_IGUAL, MAYOR_IGUAL, IGUAL, DISTINTO, PAP, 
-         PCIERRE, PUNTO_COMA, DOS_PUNTOS, ASIGNACION, CAP, CCIERRE, PUNTO, 
-         FLECHA, AND, OR, NOT, ARROBA, COMA, SEPARADOR, ID, LITERAL_ENTERO, 
-         LITERAL_REAL, CADENA_LITERAL;
+terminal UnidadLexica PROGRAM, END_PROGRAM, INT, REAL, BOOL, STRING, NULL, TRUE, FALSE,
+                     DECTYPE, DECVAR, DECPROC, END_PROC, REF, IF, END_IF, ELSE, WHILE,
+                     END_WHILE, ARRAY, OF, RECORD, END_RECORD, POINTER, NEW, DISPOSE,
+                     INPUT, OUTPUT, BLOCK, END_BLOCK, MAS, MENOS, POR, DIV, MOD,
+                     MENOR, MAYOR, MENOR_IGUAL, MAYOR_IGUAL, IGUAL, DISTINTO, PAP,
+                     PCIERRE, PUNTO_COMA, DOS_PUNTOS, ASIGNACION, CAP, CCIERRE, PUNTO,
+                     FLECHA, AND, OR, NOT, ARROBA, COMA, SEPARADOR, ID, LITERAL_ENTERO,
+                     LITERAL_REAL, CADENA_LITERAL;
 
-non terminal S, LDec_0, Instrs_0, LDec, Dec, DecVar, DecTipo, DecProc, 
-             Tipo, ListaRecord, CamposRecord, ProcParams_0, 
-             ProcParams, Param, LInstr, Instr, InstrAsig, 
-             InstrIf, InstrIfElse, InstrWhile, InstrLectura, InstrEscritura, 
-             InstrReserva, InstrLiberacion, InstrInvocar, InstrCompuesta, 
-             ProcActualParams_0, ProcActualParams, ActualParam,
-             E0, Op0, E1, Op1, E2, Op2, E3, E4, E5, E6;
+non terminal ASTNode S, LDec_0, Instrs_0, LDec, Dec, DecVar, DecTipo, DecProc,
+                               Tipo, ListaRecord, CamposRecord, ProcParams_0,
+                               ProcParams, Param, LInstr, Instr, InstrAsig,
+                               InstrIf, InstrIfElse, InstrWhile, InstrLectura, InstrEscritura,
+                               InstrReserva, InstrLiberacion, InstrInvocar, InstrCompuesta,
+                               ProcActualParams_0, ProcActualParams, ActualParam,
+                               E0, E1, E2, E3, E4, E5, E6;
 
-S ::= PROGRAM LDec_0 Instrs_0 END_PROGRAM ;
+non terminal UnidadLexica Op0, Op1, Op2;
 
-LDec_0 ::= LDec SEPARADOR 
-         | ;
+S ::= PROGRAM:p LDec_0:ld Instrs_0:is END_PROGRAM:e
+               {: RESULT = ASTNode.node("prog", ld, is); parser.setAST((ASTNode)RESULT); :}
+               ;
 
-LDec ::= LDec PUNTO_COMA Dec
-       | Dec ;
+LDec_0 ::= LDec:l SEPARADOR:s
+                          {: RESULT = ASTNode.node("si_dec", l); :}
+                     |
+                          {: RESULT = ASTNode.node("no_dec"); :}
+                     ;
 
-Dec ::= DecVar
-      | DecTipo
-      | DecProc ;
+LDec ::= LDec:l PUNTO_COMA Dec:d
+                     {: RESULT = ASTNode.appendLeft("muchas_decs", l, d); :}
+                | Dec:d
+                     {: RESULT = ASTNode.node("una_dec", d); :}
+                ;
 
-Tipo ::= INT 
-       | REAL
-       | BOOL
-       | STRING
-       | ID
-       | ARRAY CAP LITERAL_ENTERO CCIERRE OF Tipo
-       | RECORD ListaRecord END_RECORD
-       | POINTER Tipo ;
+Dec ::= DecVar:d
+                    {: RESULT = d; :}
+               | DecTipo:d
+                    {: RESULT = d; :}
+               | DecProc:d
+                    {: RESULT = d; :}
+               ;
 
-ListaRecord ::= ListaRecord PUNTO_COMA CamposRecord
-              | CamposRecord ;
+Tipo ::= INT:t
+                     {: RESULT = ASTNode.withToken("tipo_int", t); :}
+                | REAL:t
+                     {: RESULT = ASTNode.withToken("tipo_real", t); :}
+                | BOOL:t
+                     {: RESULT = ASTNode.withToken("tipo_bool", t); :}
+                | STRING:t
+                     {: RESULT = ASTNode.withToken("tipo_string", t); :}
+                | ID:id
+                     {: RESULT = ASTNode.withToken("tipo_id", id); :}
+                | ARRAY:a CAP:cap LITERAL_ENTERO:n CCIERRE:c OF:o Tipo:t
+                     {: RESULT = ASTNode.withLexemaAt("tipo_array", n.lexema(), c, t); :}
+                | RECORD:r ListaRecord:lr END_RECORD:er
+                     {: RESULT = ASTNode.withToken("tipo_record", r, lr); :}
+                | POINTER:p Tipo:t
+                     {: RESULT = ASTNode.withToken("tipo_pointer", p, t); :}
+                ;
 
-CamposRecord ::= ID DOS_PUNTOS Tipo ;
+ListaRecord ::= ListaRecord:l PUNTO_COMA CamposRecord:c
+                                        {: RESULT = ASTNode.appendLeft("muchos_camposrecord", l, c); :}
+                                   | CamposRecord:c
+                                        {: RESULT = ASTNode.node("un_camporecord", c); :}
+                                   ;
 
-DecVar ::= DECVAR ID DOS_PUNTOS Tipo ;
+CamposRecord ::= ID:id DOS_PUNTOS Tipo:t
+                                         {: RESULT = ASTNode.withToken("camporecord", id, t); :}
+                                         ;
 
-DecTipo ::= DECTYPE ID DOS_PUNTOS Tipo ;
+DecVar ::= DECVAR:dv ID:id DOS_PUNTOS Tipo:t
+                          {: RESULT = ASTNode.withToken("dec_var", id, t); :}
+                          ;
 
-DecProc ::= DECPROC ID PAP ProcParams_0 PCIERRE LDec_0 Instrs_0 END_PROC ;
+DecTipo ::= DECTYPE:dt ID:id DOS_PUNTOS Tipo:t
+                              {: RESULT = ASTNode.withToken("dec_tipo", id, t); :}
+                              ;
 
-ProcParams_0 ::= ProcParams
-               | ;
+DecProc ::= DECPROC:dp ID:id PAP ProcParams_0:pp PCIERRE LDec_0:ld Instrs_0:is END_PROC:ep
+                              {: RESULT = ASTNode.withToken("dec_proc", id, pp, ld, is); :}
+                              ;
 
-ProcParams ::= ProcParams COMA Param
-             | Param ;
+ProcParams_0 ::= ProcParams:pp
+                                         {: RESULT = ASTNode.node("si_procparam", pp); :}
+                                    |
+                                         {: RESULT = ASTNode.node("no_procparam"); :}
+                                    ;
 
-Param ::= REF ID DOS_PUNTOS Tipo
-        | ID DOS_PUNTOS Tipo ;
+ProcParams ::= ProcParams:pp COMA Param:p
+                                    {: RESULT = ASTNode.appendLeft("muchos_procparam", pp, p); :}
+                               | Param:p
+                                    {: RESULT = ASTNode.node("un_procparam", p); :}
+                               ;
 
-Instrs_0 ::= LInstr
-           | ;
+Param ::= REF:r ID:id DOS_PUNTOS Tipo:t
+                         {: RESULT = ASTNode.withToken("param_ref", id, t); :}
+                    | ID:id DOS_PUNTOS Tipo:t
+                         {: RESULT = ASTNode.withToken("param_val", id, t); :}
+                    ;
 
-LInstr ::= LInstr PUNTO_COMA Instr
-         | Instr ;
+Instrs_0 ::= LInstr:l
+                               {: RESULT = ASTNode.node("si_instr", l); :}
+                          |
+                               {: RESULT = ASTNode.node("no_instr"); :}
+                          ;
 
-Instr ::= InstrAsig
-        | InstrIf
-        | InstrIfElse
-        | InstrWhile
-        | InstrLectura
-        | InstrEscritura
-        | InstrReserva
-        | InstrLiberacion
-        | InstrInvocar
-        | InstrCompuesta ;
+LInstr ::= LInstr:l PUNTO_COMA Instr:i
+                          {: RESULT = ASTNode.appendLeft("muchas_instr", l, i); :}
+                     | Instr:i
+                          {: RESULT = ASTNode.node("una_instr", i); :}
+                     ;
 
-InstrAsig ::= E0 ASIGNACION E0 ;
+Instr ::= InstrAsig:i
+                         {: RESULT = i; :}
+                    | InstrIf:i
+                         {: RESULT = i; :}
+                    | InstrIfElse:i
+                         {: RESULT = i; :}
+                    | InstrWhile:i
+                         {: RESULT = i; :}
+                    | InstrLectura:i
+                         {: RESULT = i; :}
+                    | InstrEscritura:i
+                         {: RESULT = i; :}
+                    | InstrReserva:i
+                         {: RESULT = i; :}
+                    | InstrLiberacion:i
+                         {: RESULT = i; :}
+                    | InstrInvocar:i
+                         {: RESULT = i; :}
+                    | InstrCompuesta:i
+                         {: RESULT = i; :}
+                    ;
 
-InstrIf ::= IF E0 DOS_PUNTOS Instrs_0 END_IF ;
+InstrAsig ::= E0:l ASIGNACION:a E0:r
+                                   {: RESULT = ASTNode.withToken("instr_asig", a, l, r); :}
+                                   ;
 
-InstrIfElse ::= IF E0 DOS_PUNTOS Instrs_0 ELSE Instrs_0 END_IF ;
+InstrIf ::= IF:i E0:e DOS_PUNTOS Instrs_0:is END_IF:ei
+                              {: RESULT = ASTNode.withToken("instr_if", i, e, is); :}
+                              ;
 
-InstrWhile ::= WHILE E0 DOS_PUNTOS Instrs_0 END_WHILE ;
+InstrIfElse ::= IF:i E0:e DOS_PUNTOS Instrs_0:is1 ELSE:el Instrs_0:is2 END_IF:ei
+                                        {: RESULT = ASTNode.withToken("instr_ifelse", i, e, is1, is2); :}
+                                        ;
 
-InstrLectura ::= INPUT E0 ;
+InstrWhile ::= WHILE:w E0:e DOS_PUNTOS Instrs_0:is END_WHILE:ew
+                                    {: RESULT = ASTNode.withToken("instr_while", w, e, is); :}
+                                    ;
 
-InstrEscritura ::= OUTPUT E0 ;
+InstrLectura ::= INPUT:i E0:e
+                                         {: RESULT = ASTNode.withToken("instr_lectura", i, e); :}
+                                         ;
 
-InstrReserva ::= NEW E0 ;
+InstrEscritura ::= OUTPUT:o E0:e
+                                              {: RESULT = ASTNode.withToken("instr_escritura", o, e); :}
+                                              ;
 
-InstrLiberacion ::= DISPOSE E0 ;
+InstrReserva ::= NEW:n E0:e
+                                         {: RESULT = ASTNode.withToken("instr_reserva", n, e); :}
+                                         ;
 
-InstrInvocar ::= ARROBA ID PAP ProcActualParams_0 PCIERRE ;
+InstrLiberacion ::= DISPOSE:d E0:e
+                                                  {: RESULT = ASTNode.withToken("instr_liberacion", d, e); :}
+                                                  ;
 
-ProcActualParams_0 ::= ProcActualParams
-                     | ;
+InstrInvocar ::= ARROBA:a ID:id PAP ProcActualParams_0:pp PCIERRE
+                                         {: RESULT = ASTNode.withToken("instr_invocar", id, pp); :}
+                                         ;
 
-ProcActualParams ::= ProcActualParams COMA ActualParam
-                   | ActualParam ;
+ProcActualParams_0 ::= ProcActualParams:p
+                                                        {: RESULT = ASTNode.node("si_exps", p); :}
+                                                   |
+                                                        {: RESULT = ASTNode.node("no_exps"); :}
+                                                   ;
 
-ActualParam ::= E0 ;
+ProcActualParams ::= ProcActualParams:pp COMA ActualParam:a
+                                                   {: RESULT = ASTNode.appendLeft("muchas_exps", pp, a); :}
+                                              | ActualParam:a
+                                                   {: RESULT = ASTNode.node("una_exp", a); :}
+                                              ;
 
-InstrCompuesta ::= BLOCK LDec_0 Instrs_0 END_BLOCK ;
+ActualParam ::= E0:e
+                                        {: RESULT = e; :}
+                                        ;
 
-E0 ::= E1 Op0 E1
-     | E1 ;
+InstrCompuesta ::= BLOCK:b LDec_0:ld Instrs_0:is END_BLOCK:eb
+                                              {: RESULT = ASTNode.withToken("instr_compuesta", b, ld, is); :}
+                                              ;
 
-Op0 ::= MENOR | MAYOR | MENOR_IGUAL | MAYOR_IGUAL | IGUAL | DISTINTO ;
+E0 ::= E1:l Op0:op E1:r
+                {: RESULT = ASTNode.binaryFromToken(op, l, r); :}
+           | E1:e
+                {: RESULT = e; :}
+           ;
 
-E1 ::= E1 Op1 E2
-     | E2 OR E2
-     | E2 ;
+Op0 ::= MENOR:op
+                    {: RESULT = op; :}
+               | MAYOR:op
+                    {: RESULT = op; :}
+               | MENOR_IGUAL:op
+                    {: RESULT = op; :}
+               | MAYOR_IGUAL:op
+                    {: RESULT = op; :}
+               | IGUAL:op
+                    {: RESULT = op; :}
+               | DISTINTO:op
+                    {: RESULT = op; :}
+               ;
 
-Op1 ::= MAS | MENOS ;
+E1 ::= E1:l Op1:op E2:r
+                {: RESULT = ASTNode.binaryFromToken(op, l, r); :}
+           | E2:l OR:op E2:r
+                {: RESULT = ASTNode.binaryFromToken(op, l, r); :}
+           | E2:e
+                {: RESULT = e; :}
+           ;
 
-E2 ::= E2 Op2 E3
-     | E3 AND E3
-     | E3 ;
+Op1 ::= MAS:op
+                    {: RESULT = op; :}
+               | MENOS:op
+                    {: RESULT = op; :}
+               ;
 
-Op2 ::= POR | DIV | MOD ;
+E2 ::= E2:l Op2:op E3:r
+                {: RESULT = ASTNode.binaryFromToken(op, l, r); :}
+           | E3:l AND:op E3:r
+                {: RESULT = ASTNode.binaryFromToken(op, l, r); :}
+           | E3:e
+                {: RESULT = e; :}
+           ;
 
-E3 ::= MENOS E3
-     | NOT E4
-     | E4 ;
+Op2 ::= POR:op
+                    {: RESULT = op; :}
+               | DIV:op
+                    {: RESULT = op; :}
+               | MOD:op
+                    {: RESULT = op; :}
+               ;
 
-E4 ::= E4 CAP E0 CCIERRE
-     | E4 PUNTO ID
-     | E4 FLECHA ID
-     | E5 ;
+E3 ::= MENOS:op E3:e
+                {: RESULT = ASTNode.unaryFromToken(op, e); :}
+           | NOT:op E4:e
+                {: RESULT = ASTNode.unaryFromToken(op, e); :}
+           | E4:e
+                {: RESULT = e; :}
+           ;
 
-E5 ::= POR E5
-     | E6 ;
+E4 ::= E4:base CAP:cap E0:index CCIERRE:cc
+                {: RESULT = ASTNode.postArray(base, cap, index); :}
+           | E4:base PUNTO:dot ID:id
+                {: RESULT = ASTNode.postField(base, dot, id); :}
+           | E4:base FLECHA:arrow ID:id
+                {: RESULT = ASTNode.postArrow(base, arrow, id); :}
+           | E5:e
+                {: RESULT = e; :}
+           ;
 
-E6 ::= ID
-     | LITERAL_ENTERO
-     | LITERAL_REAL
-     | TRUE
-     | FALSE
-     | CADENA_LITERAL
-     | NULL
-     | PAP E0 PCIERRE ;
+E5 ::= POR:op E5:e
+                {: RESULT = ASTNode.unaryFromToken(op, e); :}
+           | E6:e
+                {: RESULT = e; :}
+           ;
+
+E6 ::= ID:id
+                {: RESULT = ASTNode.withToken("iden", id); :}
+           | LITERAL_ENTERO:n
+                {: RESULT = ASTNode.withToken("lit_int", n); :}
+           | LITERAL_REAL:r
+                {: RESULT = ASTNode.withToken("lit_real", r); :}
+           | TRUE:t
+                {: RESULT = ASTNode.withToken("lit_bool", t); :}
+           | FALSE:f
+                {: RESULT = ASTNode.withToken("lit_bool", f); :}
+           | CADENA_LITERAL:s
+                {: RESULT = ASTNode.withToken("lit_string", s); :}
+           | NULL:n
+                {: RESULT = ASTNode.withToken("exp_null", n); :}
+           | PAP E0:e PCIERRE
+                {: RESULT = e; :}
+           ;
