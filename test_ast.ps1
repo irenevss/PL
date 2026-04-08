@@ -35,27 +35,36 @@ $total = 0
 foreach ($file in $casos) {
     $total++
     $expectedFile = $file.FullName.Replace(".in", ".out")
+    $diffFile = $file.FullName.Replace(".in", ".diff")
     
     if (!(Test-Path $expectedFile)) {
         Write-Host "SKIP: $($file.Name) (Expected output missing)" -ForegroundColor Yellow
         continue
     }
 
+    # Clean previous diff
+    if (Test-Path $diffFile) { Remove-Item $diffFile }
+
     $inputFile = $file.FullName
+    # Use 2>&1 to capture all output including potential crash messages
     cmd /c "type `"$inputFile`" | java -cp `"$CP`" DomJudge > `"$ACTUAL`" 2>&1"
 
     if ($LASTEXITCODE -ne 0) {
         Write-Host "FAIL: $($file.Name) (Crash or Exit Code $LASTEXITCODE)" -ForegroundColor Red
+        # Save actual output for inspection
+        Move-Item $ACTUAL $diffFile -Force
         continue
     }
 
     # Compare content
-    $fc_result = cmd /c "fc /w `"$ACTUAL`" `"$expectedFile`""
+    $fc_result = cmd /c "fc `"$ACTUAL`" `"$expectedFile`""
     if ($LASTEXITCODE -eq 0) {
         Write-Host "PASS: $($file.Name)" -ForegroundColor Green
         $passed++
     } else {
         Write-Host "FAIL: $($file.Name) (Mismatch)" -ForegroundColor Red
+        # Generate diff file using fc output
+        cmd /c "fc `"$ACTUAL`" `"$expectedFile`" > `"$diffFile`""
     }
 }
 

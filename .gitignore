@@ -37,6 +37,7 @@ test.out
 test.txt
 *.res
 *.log
+casos/*.diff
 
 # OS generated files
 Thumbs.db
