@@ -1,9 +1,19 @@
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.IOException;
+
+// JavaCC Imports
 import asint.ConstructorASTsTinyDJ;
-import asint.SintaxisAbstractaTiny.Prog;
+import asint.SintaxisAbstractaTiny;
 import asint.TokenMgrError;
 import asint.ParseException;
+
+// JFlex/CUP Imports
+import alex.AnalizadorLexicoTiny;
+import asint_cup.AnalizadorSintacticoTinyDJ;
+import errors.GestionErroresTiny.ErrorLexico;
+import errors.GestionErroresTiny.ErrorSintactico;
+import ast.Prog;
 
 public class DomJudge {
     public static void main(String[] args) throws Exception {
@@ -11,36 +21,44 @@ public class DomJudge {
         int selector = input.read();
         while (selector == '\n' || selector == '\r') selector = input.read();
 
-        Prog ast = null;
-
         try {
             if (selector == 'd') {
                 System.out.println("CONSTRUCCION AST DESCENDENTE");
                 ConstructorASTsTinyDJ parser = new ConstructorASTsTinyDJ(input);
-                ast = parser.analiza();
+                asint.SintaxisAbstractaTiny.Prog astJJ = parser.analiza();
+                if (astJJ != null) {
+                    System.out.println("IMPRESION RECURSIVA");
+                    System.out.println(astJJ.toString());
+                    System.out.println("IMPRESION INTERPRETE");
+                    System.out.println(astJJ.toString());
+                    System.out.println("IMPRESION VISITANTE");
+                    System.out.println(astJJ.toString());
+                }
 
             } else if (selector == 'a') {
                 System.out.println("CONSTRUCCION AST ASCENDENTE");
-                // Llamar implementación de CUP + JFlex
+                AnalizadorLexicoTiny alex = new AnalizadorLexicoTiny(input);
+                AnalizadorSintacticoTinyDJ asintCup = new AnalizadorSintacticoTinyDJ(alex);
+                ast.Prog astProg = (ast.Prog) asintCup.parse().value;
+                if (astProg != null) {
+                    System.out.println("IMPRESION RECURSIVA");
+                    System.out.println(astProg.imprime());
+                    System.out.println("IMPRESION INTERPRETE");
+                    System.out.println(astProg.imprime());
+                    System.out.println("IMPRESION VISITANTE");
+                    System.out.println(astProg.imprime());
+                }
             }
-
-            if (ast != null) {
-                System.out.println("IMPRESION RECURSIVA");
-                //ast.impresionRecursiva(); 
-
-                System.out.println("IMPRESION INTERPRETE");
-                //ast.impresionInterprete();
-
-                System.out.println("IMPRESION VISITANTE");
-                // ast.accept(new ImpresionVisitante());
-            }
-            
         } catch (TokenMgrError e) {
-            System.out.println("ERROR_LEXICO");
+             System.out.println("ERROR_LEXICO");
         } catch (ParseException e) {
-            System.out.println("ERROR_SINTACTICO");
+             System.out.println("ERROR_SINTACTICO");
+        } catch (ErrorLexico e) {
+             System.out.println("ERROR_LEXICO");
+        } catch (ErrorSintactico e) {
+             System.out.println("ERROR_SINTACTICO");
         } catch (Exception e) {
-            System.out.println("ERROR_SINTACTICO");
+             System.out.println("ERROR_SINTACTICO");
         }
     }
 }

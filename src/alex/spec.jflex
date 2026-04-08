@@ -1,15 +1,27 @@
 package alex;
 
+import asint_cup.ClaseLexica;
+import errors.GestionErroresTiny;
+
 %%
 %public
 %class AnalizadorLexicoTiny
+%cup
 %type UnidadLexica
 %unicode
 %line
 %column
 
+%eofval{
+  return ops.unievaluada(ClaseLexica.EOF);
+%eofval}
+
 %{
   private ALexOperations ops;
+  private GestionErroresTiny errores;
+  public void fijaGestionErrores(GestionErroresTiny errores) {
+    this.errores = errores;
+  }
   public String lexema() {return yytext();}
   public int fila() {return yyline+1;}
   public int columna() {return yycolumn+1;}
@@ -101,4 +113,4 @@ LiteralCadena = '([^'\\]|\\b|\\r|\\t|\\n)*'
 {Id}                   { return ops.multivaluada(ClaseLexica.ID, yytext()); }
 {LiteralCadena}        { return ops.multivaluada(ClaseLexica.CADENA_LITERAL, yytext()); }
 
-[^]                    { ops.error(); }
+[^]                    { errores.errorLexico(fila(), columna(), lexema()); }
