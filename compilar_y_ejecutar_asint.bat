@@ -14,5 +14,5 @@ if "%~1"=="" (
     echo Ejemplo: compilar_y_ejecutar.bat test_sintactico.txt
 ) else (
     echo === Ejecutando el Analizador Sintactico Tiny ===
-    java -cp bin asint.AnalizadorSintacticoTiny "%~1"
+    java -cp bin asint.Main "%~1"
 )

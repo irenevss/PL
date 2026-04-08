@@ -1,5 +1,0 @@
-## Lista declaraciones mal modelizada
-program
-; decvar x: int; decvar y: bool
---
-end_program

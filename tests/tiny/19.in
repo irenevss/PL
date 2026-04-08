@@ -1,4 +1,0 @@
-program
-## error lexico: caracter inesp. $
-x := $y
-end_program

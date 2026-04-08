@@ -1,4 +1,0 @@
-## Programa con instrucciones, sin declaraciones 
-program
-  x := 5 + 1
-end_program

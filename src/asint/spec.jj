@@ -1,35 +1,34 @@
 options {
-  STATIC = false;
-  DEBUG_PARSER = true;
+  STATIC=false;
+  DEBUG_PARSER=true;
 }
 
-PARSER_BEGIN(AnalizadorSintacticoTiny)
+PARSER_BEGIN(ConstructorASTsTiny)
 package asint;
 
-import java.io.FileInputStream;
+import asint.ClaseSemanticaTiny;
+import asint.SintaxisAbstractaTiny.Prog;
+import asint.SintaxisAbstractaTiny.LDec_0;
+import asint.SintaxisAbstractaTiny.Instrs_0;
+import asint.SintaxisAbstractaTiny.LInstr_0;
+import asint.SintaxisAbstractaTiny.LDec;
+import asint.SintaxisAbstractaTiny.Dec;
+import asint.SintaxisAbstractaTiny.Tipo;
+import asint.SintaxisAbstractaTiny.ListaRecord;
+import asint.SintaxisAbstractaTiny.CamposRecord;
+import asint.SintaxisAbstractaTiny.LProcParams_0;
+import asint.SintaxisAbstractaTiny.LProcParams;
+import asint.SintaxisAbstractaTiny.Param;
+import asint.SintaxisAbstractaTiny.LInstr;
+import asint.SintaxisAbstractaTiny.Instr;
+import asint.SintaxisAbstractaTiny.LExps_0;
+import asint.SintaxisAbstractaTiny.LExps;
+import asint.SintaxisAbstractaTiny.Exp;
 
-public class AnalizadorSintacticoTiny {
-    protected void newToken(Token t) { }
-    public static void main(String[] args) {
-        if (args.length == 0) {
-            System.err.println("Por favor, especifique el archivo a analizar.");
-            return;
-        }
-        try {
-            FileInputStream fis = new FileInputStream(args[0]);
-            AnalizadorSintacticoTiny parser = new AnalizadorSintacticoTiny(fis);
-            parser.S();
-            System.out.println("OK");
-        } catch (TokenMgrError e) {
-            System.err.println("ERROR LEXICO: " + e.getMessage());
-        } catch (ParseException e) {
-            System.err.println("ERROR SINTACTICO: " + e.getMessage());
-        } catch (Exception e) {
-            System.err.println("OTRO ERROR: " + e.getMessage());
-        }
-    }
+public class ConstructorASTsTiny {
+   private ClaseSemanticaTiny sem = new ClaseSemanticaTiny();
 }
-PARSER_END(AnalizadorSintacticoTiny)
+PARSER_END(ConstructorASTsTiny)
 
 SKIP : {
   " " | "\t" | "\r" | "\n" | "\b"
@@ -111,117 +110,612 @@ TOKEN : {
 | < #PARTE_EXPONENCIAL: ["e","E"] <PARTE_ENTERA> >
 }
 
-// Sección declaraciones
-void S() : {} { <PROGRAM> LDec_0() Instrs_0() <END_PROGRAM> <EOF> }
+// Entrada principal
 
-void LDec_0() : {} { LDec() <SEPARADOR> | {} }
-
-void LDec() : {} { Dec() RLDec() }
-
-void RLDec() : {} { <PUNTO_COMA> Dec() RLDec() | {} }
-
-void Dec() : {} { DecVar() | DecTipo() | DecProc() }
-
-void Tipo() : {} {
-    <INT> 
-  | <REAL> 
-  | <BOOL> 
-  | <STRING> 
-  | <ID> 
-  | <ARRAY> <CAP> <LITERAL_ENTERO> <CCIERRE> <OF> Tipo()
-  | <POINTER> Tipo()
-  | <RECORD> ListaRecord() <END_RECORD>
+Prog analiza() :
+{
+   Prog p;
+}
+{
+   p=S() <EOF> { return p; }
 }
 
-void ListaRecord() : {} { CamposRecord() RListaRecord() }
-
-void RListaRecord() : {} { <PUNTO_COMA> CamposRecord() RListaRecord() | {} }
-
-void CamposRecord() : {} { <ID> <DOS_PUNTOS> Tipo() }
-
-void DecVar() : {} { <DECVAR> <ID> <DOS_PUNTOS> Tipo() }
-
-void DecTipo() : {} { <DECTYPE> <ID> <DOS_PUNTOS> Tipo() }
-
-void DecProc() : {} { <DECPROC> <ID> <PAP> ProcParams_0() <PCIERRE> LDec_0() Instrs_0() <END_PROC> }
-
-void ProcParams_0() : {} { ProcParams() | {} }
-void ProcParams() : {} { Param() RProcParam() }
-void RProcParam() : {} { <COMA> Param() RProcParam() | {} }
-void Param() : {} { <REF> <ID> <DOS_PUNTOS> Tipo() | <ID> <DOS_PUNTOS> Tipo() }
-
-// Sección instrucciones
-void Instrs_0() : {} { LInstr() | {} }
-void LInstr() : {} { Instr() RLInstr() }
-void RLInstr() : {} { <PUNTO_COMA> Instr() RLInstr() | {} }
-
-void Instr() : {} {
-    InstrAsig()
-  | InstrIfOrIfElse()
-  | InstrWhile()
-  | InstrLectura()
-  | InstrEscritura()
-  | InstrReserva()
-  | InstrLiberacion()
-  | InstrInvocar()
-  | InstrCompuesta()
+Prog S() :
+{
+   LDec_0 d;
+   Instrs_0 i;
+}
+{
+   <PROGRAM> d=LDec_0() i=Instrs_0() <END_PROGRAM>
+   { return (Prog)sem.prog(d,i); }
 }
 
-void InstrAsig() : {} { E0() <ASIGNACION> E0() }
+// Seccion declaraciones
 
-void InstrIfOrIfElse() : {} {
-    <IF> E0() <DOS_PUNTOS> Instrs_0() ( <END_IF> | <ELSE> Instrs_0() <END_IF> )
+LDec_0 LDec_0() :
+{
+   LDec l;
+}
+{
+   l=LDec() <SEPARADOR>
+      { return sem.si_dec(l); }
+ |
+      { return sem.no_dec(); }
 }
 
-void InstrWhile() : {} { <WHILE> E0() <DOS_PUNTOS> Instrs_0() <END_WHILE> }
+LDec LDec() :
+{
+   Dec d;
+   LDec l;
+}
+{
+   d=Dec() l=RLDec(sem.una_dec(d))
+      { return l; }
+}
 
-void InstrLectura() : {} { <INPUT> E0() }
+LDec RLDec(LDec decsh) :
+{
+   Dec d;
+   LDec l;
+}
+{
+   <PUNTO_COMA> d=Dec() l=RLDec(sem.muchas_decs(decsh,d))
+      { return l; }
+ |
+      { return decsh; }
+}
 
-void InstrEscritura() : {} { <OUTPUT> E0() }
+Dec Dec() :
+{
+   Dec d;
+}
+{
+   d=DecVar() { return d; }
+ |
+   d=DecTipo() { return d; }
+ |
+   d=DecProc() { return d; }
+}
 
-void InstrReserva() : {} { <NEW> E0() }
+Dec DecVar() :
+{
+   Token id;
+   Tipo t;
+}
+{
+   <DECVAR> id=<ID> <DOS_PUNTOS> t=Tipo()
+   { return (Dec)sem.dec_var(id.image,t).ponFila(id.beginLine).ponCol(id.beginColumn); }
+}
 
-void InstrLiberacion() : {} { <DISPOSE> E0() }
+Dec DecTipo() :
+{
+   Token id;
+   Tipo t;
+}
+{
+   <DECTYPE> id=<ID> <DOS_PUNTOS> t=Tipo()
+   { return (Dec)sem.dec_tipo(id.image,t).ponFila(id.beginLine).ponCol(id.beginColumn); }
+}
 
-void InstrInvocar() : {} { <ARROBA> <ID> <PAP> ProcActualParams_0() <PCIERRE> }
+Dec DecProc() :
+{
+   Token id;
+   LProcParams_0 ps;
+   LDec_0 ds;
+   Instrs_0 is;
+}
+{
+   <DECPROC> id=<ID> <PAP> ps=ProcParams_0() <PCIERRE> ds=LDec_0() is=Instrs_0() <END_PROC>
+   { return (Dec)sem.dec_proc(id.image,ps,ds,is).ponFila(id.beginLine).ponCol(id.beginColumn); }
+}
 
-void ProcActualParams_0() : {} { ProcActualParams() | {} }
-void ProcActualParams() : {} { ActualParam() RProcActualParam() }
-void RProcActualParam() : {} { <COMA> ActualParam() RProcActualParam() | {} }
-void ActualParam() : {} { E0() }
+Tipo Tipo() :
+{
+   Token t;
+   Tipo tipo;
+   ListaRecord lr;
+}
+{
+   <INT> { return sem.tipo_int(); }
+ |
+   <REAL> { return sem.tipo_real(); }
+ |
+   <BOOL> { return sem.tipo_bool(); }
+ |
+   <STRING> { return sem.tipo_string(); }
+ |
+   t=<ID> { return (Tipo)sem.tipo_id(t.image).ponFila(t.beginLine).ponCol(t.beginColumn); }
+ |
+   <ARRAY> <CAP> t=<LITERAL_ENTERO> <CCIERRE> <OF> tipo=Tipo()
+      { return sem.tipo_array(t.image,tipo); }
+ |
+   <POINTER> tipo=Tipo()
+      { return sem.tipo_pointer(tipo); }
+ |
+   <RECORD> lr=ListaRecord() <END_RECORD>
+      { return sem.tipo_record(lr); }
+}
 
-void InstrCompuesta() : {} { <BLOCK> LDec_0() Instrs_0() <END_BLOCK> }
+ListaRecord ListaRecord() :
+{
+   CamposRecord c;
+   ListaRecord lr;
+}
+{
+   c=CamposRecord() lr=RListaRecord(sem.un_camporecord(c))
+      { return lr; }
+}
 
-// Sección expresiones
-void E0() : {} { E1() RE0() }
-void RE0() : {} { Op0() E1() | {} }
-void Op0() : {} { <MENOR> | <MAYOR> | <MENOR_IGUAL> | <MAYOR_IGUAL> | <IGUAL> | <DISTINTO> }
+ListaRecord RListaRecord(ListaRecord lrh) :
+{
+   CamposRecord c;
+   ListaRecord lr;
+}
+{
+   <PUNTO_COMA> c=CamposRecord() lr=RListaRecord(sem.muchos_camposrecord(lrh,c))
+      { return lr; }
+ |
+      { return lrh; }
+}
 
-void E1() : {} { E2() RE1() RE1_prime() }
-void RE1_prime() : {} { Op1() E2() RE1_prime() | {} }
-void Op1() : {} { <MAS> | <MENOS> }
-void RE1() : {} { <OR> E2() | {} }
+CamposRecord CamposRecord() :
+{
+   Token id;
+   Tipo t;
+}
+{
+   id=<ID> <DOS_PUNTOS> t=Tipo()
+   { return (CamposRecord)sem.camporecord(id.image,t).ponFila(id.beginLine).ponCol(id.beginColumn); }
+}
 
-void E2() : {} { E3() RE2() RE2_prime() }
-void RE2_prime() : {} { Op2() E3() RE2_prime() | {} }
-void Op2() : {} { <POR> | <DIV> | <MOD> }
-void RE2() : {} { <AND> E3() | {} }
+LProcParams_0 ProcParams_0() :
+{
+   LProcParams ps;
+}
+{
+   ps=ProcParams()
+      { return sem.si_procparam(ps); }
+ |
+      { return sem.no_procparam(); }
+}
 
-void E3() : {} { <MENOS> E3() | <NOT> E4() | E4() }
+LProcParams ProcParams() :
+{
+   Param p;
+   LProcParams ps;
+}
+{
+   p=Param() ps=RProcParam(sem.un_procparam(p))
+      { return ps; }
+}
 
-void E4() : {} { E5() RE3_prime() }
-void RE3_prime() : {} { RE3() RE3_prime() | {} }
-void RE3() : {} { <PUNTO> <ID> | <FLECHA> <ID> | <CAP> E0() <CCIERRE> }
+LProcParams RProcParam(LProcParams psh) :
+{
+   Param p;
+   LProcParams ps;
+}
+{
+   <COMA> p=Param() ps=RProcParam(sem.muchos_procparam(psh,p))
+      { return ps; }
+ |
+      { return psh; }
+}
 
-void E5() : {} { <POR> E5() | E6() }
+Param Param() :
+{
+   Token id;
+   Tipo t;
+}
+{
+   <REF> id=<ID> <DOS_PUNTOS> t=Tipo()
+      { return (Param)sem.param_ref(id.image,t).ponFila(id.beginLine).ponCol(id.beginColumn); }
+ |
+   id=<ID> <DOS_PUNTOS> t=Tipo()
+      { return (Param)sem.param_val(id.image,t).ponFila(id.beginLine).ponCol(id.beginColumn); }
+}
 
-void E6() : {} {
-    <ID> 
-  | <LITERAL_ENTERO>
-  | <LITERAL_REAL>
-  | <TRUE>
-  | <FALSE>
-  | <CADENA_LITERAL>
-  | <NULL>
-  | <PAP> E0() <PCIERRE>
+// Seccion instrucciones
+
+Instrs_0 Instrs_0() :
+{
+   LInstr l;
+}
+{
+   l=LInstr()
+      { return sem.si_instr(l); }
+ |
+      { return sem.no_instr(); }
+}
+
+LInstr_0 LInstr_0() :
+{
+   LInstr l;
+}
+{
+   l=LInstr()
+      { return sem.si_instr0(l); }
+ |
+      { return sem.no_instr0(); }
+}
+
+LInstr LInstr() :
+{
+   Instr i;
+   LInstr l;
+}
+{
+   i=Instr() l=RLInstr(sem.una_instr(i))
+      { return l; }
+}
+
+LInstr RLInstr(LInstr lh) :
+{
+   Instr i;
+   LInstr l;
+}
+{
+   <PUNTO_COMA> i=Instr() l=RLInstr(sem.muchas_instr(lh,i))
+      { return l; }
+ |
+      { return lh; }
+}
+
+Instr Instr() :
+{
+   Instr i;
+}
+{
+   i=InstrAsig() { return i; }
+ |
+   i=InstrIfOrIfElse() { return i; }
+ |
+   i=InstrWhile() { return i; }
+ |
+   i=InstrLectura() { return i; }
+ |
+   i=InstrEscritura() { return i; }
+ |
+   i=InstrReserva() { return i; }
+ |
+   i=InstrLiberacion() { return i; }
+ |
+   i=InstrInvocar() { return i; }
+ |
+   i=InstrCompuesta() { return i; }
+}
+
+Instr InstrAsig() :
+{
+   Exp e1,e2;
+}
+{
+   e1=E0() <ASIGNACION> e2=E0()
+      { return sem.instr_asig(e1,e2); }
+}
+
+Instr InstrIfOrIfElse() :
+{
+   Exp e;
+   LInstr_0 li1, li2;
+}
+{
+   <IF> e=E0() <DOS_PUNTOS> li1=LInstr_0()
+   (
+      <ELSE> li2=LInstr_0() <END_IF>
+      { return sem.instr_ifelse(e, li1, li2); }
+   |
+      <END_IF>
+      { return sem.instr_if(e, li1); }
+   )
+}
+
+Instr InstrWhile() :
+{
+   Exp e;
+   LInstr_0 li;
+}
+{
+   <WHILE> e=E0() <DOS_PUNTOS> li=LInstr_0() <END_WHILE>
+      { return sem.instr_while(e,li); }
+}
+
+Instr InstrLectura() :
+{
+   Exp e;
+}
+{
+   <INPUT> e=E0()
+      { return sem.instr_lectura(e); }
+}
+
+Instr InstrEscritura() :
+{
+   Exp e;
+}
+{
+   <OUTPUT> e=E0()
+      { return sem.instr_escritura(e); }
+}
+
+Instr InstrReserva() :
+{
+   Exp e;
+}
+{
+   <NEW> e=E0()
+      { return sem.instr_reserva(e); }
+}
+
+Instr InstrLiberacion() :
+{
+   Exp e;
+}
+{
+   <DISPOSE> e=E0()
+      { return sem.instr_liberacion(e); }
+}
+
+Instr InstrInvocar() :
+{
+   Token id;
+   LExps_0 ps;
+}
+{
+   <ARROBA> id=<ID> <PAP> ps=LExps_0() <PCIERRE>
+      { return (Instr)sem.instr_invocar(id.image,ps).ponFila(id.beginLine).ponCol(id.beginColumn); }
+}
+
+Instr InstrCompuesta() :
+{
+   LDec_0 d;
+   Instrs_0 i;
+}
+{
+   <BLOCK> d=LDec_0() i=Instrs_0() <END_BLOCK>
+      { return sem.instr_compuesta(d,i); }
+}
+
+LExps_0 LExps_0() :
+{
+   LExps ps;
+}
+{
+   ps=LExps()
+      { return sem.si_exps(ps); }
+|
+      { return sem.no_exps(); }
+}
+
+LExps LExps() :
+{
+   Exp e;
+   LExps ps;
+}
+{
+   e=E0() ps=RLExps(sem.una_exp(e))
+      { return ps; }
+}
+
+LExps RLExps(LExps psh) :
+{
+   Exp e;
+   LExps ps;
+}
+{
+   <COMA> e=E0() ps=RLExps(sem.muchas_exps(psh,e))
+      { return ps; }
+|
+      { return psh; }
+}
+
+// Seccion expresiones
+
+Exp E0() :
+{
+   Exp e1,e2;
+}
+{
+   e1=E1() e2=RE0(e1)
+      { return e2; }
+}
+
+Exp RE0(Exp eh) :
+{
+   Token op;
+   Exp e1;
+}
+{
+   op=Op0() e1=E1()
+      { return sem.exp_binaria(op.image,eh,e1,op.beginLine,op.beginColumn); }
+|
+      { return eh; }
+}
+
+Token Op0() :
+{ Token t; }
+{
+   t=<MENOR>       { return t; }
+|
+   t=<MAYOR>       { return t; }
+|
+   t=<MENOR_IGUAL> { return t; }
+|
+   t=<MAYOR_IGUAL> { return t; }
+|
+   t=<IGUAL>       { return t; }
+|
+   t=<DISTINTO>    { return t; }
+}
+
+Exp E1() :
+{
+   Exp e2,e3,e4;
+}
+{
+   e2=E2() e3=RE1(e2) e4=RE1_prime(e3)
+      { return e4; }
+}
+
+Exp RE1(Exp eh) :
+{
+   Exp e2;
+   Token t;
+}
+{
+   t=<OR> e2=E2()
+      { return (Exp)sem.exp_or(eh,e2).ponFila(t.beginLine).ponCol(t.beginColumn); }
+|
+      { return eh; }
+}
+
+Exp RE1_prime(Exp eh) :
+{
+   Token op;
+   Exp e2,e3;
+}
+{
+   op=Op1() e2=E2() e3=RE1_prime(sem.exp_binaria(op.image,eh,e2,op.beginLine,op.beginColumn))
+      { return e3; }
+|
+      { return eh; }
+}
+
+Token Op1() :
+{ Token t; }
+{
+   t=<MAS>   { return t; }
+|
+   t=<MENOS> { return t; }
+}
+
+Exp E2() :
+{
+   Exp e3,e4,e5;
+}
+{
+   e3=E3() e4=RE2(e3) e5=RE2_prime(e4)
+      { return e5; }
+}
+
+Exp RE2(Exp eh) :
+{
+   Exp e3;
+   Token t;
+}
+{
+   t=<AND> e3=E3()
+      { return (Exp)sem.exp_and(eh,e3).ponFila(t.beginLine).ponCol(t.beginColumn); }
+|
+      { return eh; }
+}
+
+Exp RE2_prime(Exp eh) :
+{
+   Token op;
+   Exp e3,e4;
+}
+{
+   op=Op2() e3=E3() e4=RE2_prime(sem.exp_binaria(op.image,eh,e3,op.beginLine,op.beginColumn))
+      { return e4; }
+|
+      { return eh; }
+}
+
+Token Op2() :
+{ Token t; }
+{
+   t=<POR> { return t; }
+|
+   t=<DIV> { return t; }
+|
+   t=<MOD> { return t; }
+}
+
+Exp E3() :
+{
+   Exp e;
+   Token t;
+}
+{
+   t=<MENOS> e=E3()
+      { return (Exp)sem.exp_menos_unario(e).ponFila(t.beginLine).ponCol(t.beginColumn); }
+|
+   t=<NOT> e=E4()
+      { return (Exp)sem.exp_not(e).ponFila(t.beginLine).ponCol(t.beginColumn); }
+|
+   e=E4()
+      { return e; }
+}
+
+Exp E4() :
+{
+   Exp e5,e6;
+}
+{
+   e5=E5() e6=RE3_prime(e5)
+      { return e6; }
+}
+
+Exp RE3_prime(Exp eh) :
+{
+   Token t;
+   Exp indice;
+   Exp r;
+   Token id;
+}
+{
+   t=<PUNTO> id=<ID> r=RE3_prime(sem.aplicar_postfijo(".",eh,null,id.image,t.beginLine,t.beginColumn))
+      { return r; }
+|
+   t=<FLECHA> id=<ID> r=RE3_prime(sem.aplicar_postfijo("->",eh,null,id.image,t.beginLine,t.beginColumn))
+      { return r; }
+|
+   t=<CAP> indice=E0() <CCIERRE> r=RE3_prime(sem.aplicar_postfijo("[]",eh,indice,null,t.beginLine,t.beginColumn))
+      { return r; }
+|
+      { return eh; }
+}
+
+Exp E5() :
+{
+   Exp e;
+   Token t;
+}
+{
+   t=<POR> e=E5()
+      { return (Exp)sem.exp_asterisco_unario(e).ponFila(t.beginLine).ponCol(t.beginColumn); }
+|
+   e=E6()
+      { return e; }
+}
+
+Exp E6() :
+{
+   Token t;
+   Exp e;
+}
+{
+   t=<ID>
+      { return (Exp)sem.iden(t.image).ponFila(t.beginLine).ponCol(t.beginColumn); }
+|
+   t=<LITERAL_ENTERO>
+      { return (Exp)sem.lit_int(t.image).ponFila(t.beginLine).ponCol(t.beginColumn); }
+|
+   t=<LITERAL_REAL>
+      { return (Exp)sem.lit_real(t.image).ponFila(t.beginLine).ponCol(t.beginColumn); }
+|
+   t=<TRUE>
+      { return (Exp)sem.lit_bool("true").ponFila(t.beginLine).ponCol(t.beginColumn); }
+|
+   t=<FALSE>
+      { return (Exp)sem.lit_bool("false").ponFila(t.beginLine).ponCol(t.beginColumn); }
+|
+   t=<CADENA_LITERAL>
+      { return (Exp)sem.lit_string(t.image).ponFila(t.beginLine).ponCol(t.beginColumn); }
+|
+   t=<NULL>
+      { return (Exp)sem.lit_null().ponFila(t.beginLine).ponCol(t.beginColumn); }
+|
+   <PAP> e=E0() <PCIERRE>
+      { return e; }
 }

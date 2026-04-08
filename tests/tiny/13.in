@@ -1,6 +1,0 @@
-## lista parametros reales mal modelada
-{
-int x
-&&
-call p(,5,6)
-}

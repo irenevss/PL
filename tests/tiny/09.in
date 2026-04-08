@@ -1,8 +1,0 @@
-## Lista instrucciones mal modelizada
-program
-decvar x:int
---
-; 
-x:=5;
-y=6
-end_program

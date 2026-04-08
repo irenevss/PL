@@ -1,7 +1,0 @@
-## Asociatividad - unario asocia, ! no asocia
-program
-  ## bien
-  x := - - - - - -x;
-  ## mal
-  x := !!!x
-end_program

@@ -1,0 +1,67 @@
+d
+## Entrada sintacticamente valida para los analizadores de Tiny
+program
+dectype
+  tRaro: array [20] of  
+           pointer pointer record
+                             x: int;
+ 	                     y: bool;
+	                     z: real;
+                             k: record
+                                 x: pointer array [20] of array [30] of int;
+                                 y: int
+                                end_record
+                           end_record;
+dectype
+    tRarito: pointer pointer array [5] of array[10] of tRaro;
+decvar
+    x: pointer pointer pointer array [10] of array[10] of tRarito;
+
+decproc subprog(x: int, y: pointer pointer tRarito, z: record x: int; y: pointer tRarito end_record) 
+   decvar k: pointer pointer tRarito;
+   decproc u(v: int, ref z: array [98] of int) 
+   end_proc
+   --
+   u->v := (*(k.c->x[e+e[x.c]])).y[r] % 2;
+   @ u(5, 5 - 5)
+end_proc
+--
+if (x = 34) :
+  if(x < 56) :
+     x := x + 1;
+     block 
+        decvar x: int
+        --
+       while (x < 20):
+	x := 2*x;
+	x := 5
+       end_while
+     end_block
+  else 
+    block
+      decproc y() end_proc
+      --
+      x := 2 * y;
+      @ y(2*x + 80, 45 - x)
+    end_block
+  end_if
+end_if;
+block
+ decvar x: int
+ --
+  x := x;
+  input x.x;
+  output x + 67;
+  dispose x.x[x];
+  new u.v[x]
+end_block;
+
+x := 'una cadena!!!' + null;
+if 5: end_if;
+if 5: else end_if;
+while 5: end_while
+
+end_program
+
+
+  

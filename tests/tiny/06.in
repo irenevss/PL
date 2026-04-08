@@ -1,7 +1,0 @@
-## Error, & no asocia
-program
-## bien
-  x := (x & y) & true;
-## mal
-  x := x & y & false
-end_program

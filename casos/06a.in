@@ -1,0 +1,136 @@
+a
+program
+  dectype tArbol: pointer tNodo;     
+  dectype tNodo: record  
+                  nombre: string; 
+                  izq: tArbol;
+                  der: tArbol
+                 end_record;      
+  dectype tListaNombres: record  
+                           nombres: array [50] of string;
+                           cont: int
+                          end_record;  
+
+  decvar nombres: tListaNombres; ## Aquí se guardarán los nombres leídos (max. 50)
+  decvar arbol: tArbol;         ## Aquí se construirá un árbol de búsqueda que contendrá
+                                ## los nombres leídos, sin duplicados  
+
+   ## Lee los nombres a ordenar (max. 50 nombres)   
+  decproc lee_nombres(ref nombres: tListaNombres)  
+    decvar i: int
+    --
+    output 'Introduce el número de nombres a ordenar (max 50): \n'; 
+    input nombres.cont;
+    while (nombres.cont < 0) | (nombres.cont > 50):
+      output 'Introduce el número de nombres a ordenar (max 50): \n';
+      input nombres.cont
+    end_while; 
+    i := 0; 
+    output 'Introduce un nombre en cada línea: \n';
+    while i < nombres.cont:
+       input nombres.nombres[i];
+       i := i + 1
+    end_while  
+  end_proc; ## fin del procedimiento lee_nombres
+
+  
+   ## Construye un árbol de búsqueda sin duplicados con los nombres leídos
+   ## Hace un uso global de las variables 'nombres' y 'arbol' declaradas en
+   ## el programa principal
+  decproc construye_arbol() 
+    decvar i: int; ## para iterar sobre la lista de nombres
+
+     ## Inserta el nombre actual en el árbol de búsqueda que recibe como parámetro.
+     ## Hace un uso global de la variable 'nombres' declarado en el programa principal,
+     ## y en del contador 'i' declarado en el subprograma contenedor 'construye_arbol'
+    decproc inserta_nombre(ref arbol: tArbol)  
+      if arbol = null: 
+        new arbol;
+        arbol->nombre := nombres.nombres[i];
+        arbol->izq := null;
+        arbol->der := null		 
+      else
+        block 
+          decvar padre: tArbol;  ## apuntará al nodo padre del nuevo nodo a insertar
+          decvar act: tArbol; ## para recorrer la rama al final de la cuál debe realizarse
+                            ## la inserción. 
+          decvar fin: bool    ## para controlar el final del recorrido de la rama
+          --
+
+          padre := null;
+          act := arbol;
+          fin := false;		
+ 
+          while ! fin:
+            padre := act;
+            if act->nombre < nombres.nombres[i]: 
+                 ##insertar en el hijo derecho
+              act := act->der 
+            else  
+                if act->nombre > nombres.nombres[i]: 
+                  ##insertar en el hijo izquierdo
+                  act := act->izq
+                end_if
+            end_if;
+            
+              ##comprobando condicion de finalizacion
+            if act = null:
+              fin := true
+            else 
+              if act->nombre = nombres.nombres[i]:
+                fin := true 
+              end_if
+            end_if 
+          end_while;
+
+
+          if act = null:  
+             ## se ha alcanzado un punto de inserción
+             ## hay que insertar un nuevo nodo 
+            if padre->nombre < nombres.nombres[i]: 
+                ## insertar como hijo derecho
+              new padre->der;
+              padre->der->nombre := nombres.nombres[i];
+              padre->der->izq := null;
+              padre->der->der := null
+            else                        
+                ## insertar como hijo izquierdo 
+              new padre->izq;
+              padre->izq->nombre := nombres.nombres[i];
+              padre->izq->izq := null;
+              padre->izq->der := null
+            end_if  
+          end_if
+        end_block
+      end_if
+    end_proc   ## del procedimiento anidado inserta_nombre 
+    --
+      ## cuerpo del procedimiento construye_arbol  
+    arbol := null;
+    i := 0;
+    while i < nombres.cont: 
+      @inserta_nombre(arbol);
+      i := i + 1
+    end_while   
+  end_proc; ## del procedimiento construye_arbol 
+  
+    ## Escribe los nombres almacenados en el árbol de búsqueda, recorriendo
+    ## dicho árbol en inorden.
+    ## Por tanto, los nombres se listan ordenados alfabéticamente,
+    ## y sin duplicados
+  decproc escribe_nombres(arbol: tArbol )  
+    if arbol <> null:
+	  @escribe_nombres(arbol->izq);
+	  output arbol->nombre; output '\n';
+	  @escribe_nombres(arbol->der)
+    end_if 
+  end_proc ## fin de procedimiento escribe_nombres
+ --          
+      ## Programa principal
+  
+  @lee_nombres(nombres);
+  @construye_arbol();
+  output 'Listado de nombres ordenado\n';
+  output '---------------------------\n';
+  @escribe_nombres(arbol)
+end_program

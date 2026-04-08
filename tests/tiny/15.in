@@ -1,6 +1,0 @@
-## parametro real vacio
-{
-int x
-&&
-call p(,,)
-}
