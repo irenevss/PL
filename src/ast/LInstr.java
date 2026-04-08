@@ -4,46 +4,46 @@ public abstract class LInstr {
     public abstract void accept(Visitor v);
     public abstract String imprime();
     public abstract void process(Procesamiento p);
-}
 
-public class Muchas_instr extends LInstr {
-    public LInstr instrs;
-    public Instr instr;
+    public static class Muchas_instr extends LInstr {
+        public LInstr instrs;
+        public Instr instr;
 
-    public Muchas_instr(LInstr instrs, Instr instr) {
-        this.instrs = instrs;
-        this.instr = instr;
+        public Muchas_instr(LInstr instrs, Instr instr) {
+            this.instrs = instrs;
+            this.instr = instr;
+        }
+
+        public void accept(Visitor v) {
+            v.visit(this);
+        }
+
+        public String imprime() {
+            return instrs.imprime() + ";\n" + instr.imprime();
+        }
+
+        public void process(Procesamiento p) {
+            p.process(this);
+        }
     }
 
-    public void accept(Visitor v) {
-        v.visit(this);
-    }
+    public static class Una_instr extends LInstr {
+        public Instr instr;
 
-    public String imprime() {
-        return instrs.imprime() + ";\n" + instr.imprime();
-    }
+        public Una_instr(Instr instr) {
+            this.instr = instr;
+        }
 
-    public void process(Procesamiento p) {
-        p.process(this);
-    }
-}
+        public void accept(Visitor v) {
+            v.visit(this);
+        }
 
-public class Una_instr extends LInstr {
-    public Instr instr;
+        public String imprime() {
+            return instr.imprime();
+        }
 
-    public Una_instr(Instr instr) {
-        this.instr = instr;
-    }
-
-    public void accept(Visitor v) {
-        v.visit(this);
-    }
-
-    public String imprime() {
-        return instr.imprime();
-    }
-
-    public void process(Procesamiento p) {
-        p.process(this);
+        public void process(Procesamiento p) {
+            p.process(this);
+        }
     }
 }

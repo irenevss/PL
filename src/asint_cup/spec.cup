@@ -36,243 +36,117 @@ terminal PROGRAM, END_PROGRAM, INT, REAL, BOOL, STRING, NULL, TRUE, FALSE,
          FLECHA, AND, OR, NOT, ARROBA, COMA, SEPARADOR, ID, LITERAL_ENTERO, 
          LITERAL_REAL, CADENA_LITERAL;
 
-non terminal Prog S, LDec_0, Instrs_0, LDec, Dec, DecVar, DecTipo, DecProc, 
-             Tipo, ListaRecord, CamposRecord, ProcParams_0, 
-             ProcParams, Param, LInstr, LInstr_0, Instr, InstrAsig, 
-             InstrIf, InstrIfElse, InstrWhile, InstrLectura, InstrEscritura, 
-             InstrReserva, InstrLiberacion, InstrInvocar, InstrCompuesta, 
-             ProcActualParams_0, ProcActualParams, ActualParam,
-             E0, Op0, E1, Op1, E2, Op2, E3, E4, RE3, E5, E6, RE0, RE1, RE2;
+non terminal Prog S;
+non terminal LDec_0 LDec_0;
+non terminal Instrs_0 Instrs_0;
+non terminal LDec LDec;
+non terminal Dec Dec;
+non terminal Tipo Tipo;
+non terminal ListaRecord ListaRecord;
+non terminal CamposRecord CamposRecord;
+non terminal LProcParams_0 ProcParams_0;
+non terminal LProcParams ProcParams;
+non terminal Param Param;
+non terminal LInstr LInstr;
+non terminal LInstr_0 LInstr_0;
+non terminal Instr Instr;
+non terminal LExps_0 ProcActualParams_0;
+non terminal LExps ProcActualParams;
+non terminal Exp E;
+
+precedence left OR;
+precedence left AND;
+precedence left MENOR, MAYOR, MENOR_IGUAL, MAYOR_IGUAL, IGUAL, DISTINTO;
+precedence left MAS, MENOS;
+precedence left POR, DIV, MOD;
+precedence right NOT;
+precedence left CAP, PUNTO, FLECHA;
 
 S ::= PROGRAM LDec_0:l1 Instrs_0:i1 END_PROGRAM {: RESULT = new Prog(l1, i1); :};
 
-LDec_0 ::= LDec:l SEPARADOR {: RESULT = new Si_dec(l); :}
-         | {: RESULT = new No_dec(); :};
+LDec_0 ::= LDec:l SEPARADOR {: RESULT = new LDec_0.Si_dec(l); :}
+         | {: RESULT = new LDec_0.No_dec(); :};
 
-LDec ::= LDec:l1 PUNTO_COMA Dec:d {: RESULT = new Muchas_decs(l1, d); :}
-       | Dec:d {: RESULT = new Una_dec(d); :};
+LDec ::= LDec:l1 PUNTO_COMA Dec:d {: RESULT = new LDec.Muchas_decs(l1, d); :}
+       | Dec:d {: RESULT = new LDec.Una_dec(d); :};
 
-Dec ::= DecVar:d {: RESULT = d; :}
-      | DecTipo:d {: RESULT = d; :}
-      | DecProc:d {: RESULT = d; :};
+Dec ::= DECVAR ID:i DOS_PUNTOS Tipo:t {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Dec.Dec_var(ul.lexema(), t, ul.fila(), ul.columna()); :}
+      | DECTYPE ID:i DOS_PUNTOS Tipo:t {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Dec.Dec_tipo(ul.lexema(), t, ul.fila(), ul.columna()); :}
+      | DECPROC ID:i PAP ProcParams_0:p PCIERRE LDec_0:l Instrs_0:instr END_PROC {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Dec.Dec_proc(ul.lexema(), ul.fila(), ul.columna(), p, l, instr); :};
 
-DecVar ::= DECVAR ID:i DOS_PUNTOS Tipo:t {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Dec_var(ul.lexema(), t, ul.fila(), ul.columna()); :};
+Tipo ::= INT {: RESULT = new Tipo.Tipo_int(); :}
+       | REAL {: RESULT = new Tipo.Tipo_real(); :}
+       | BOOL {: RESULT = new Tipo.Tipo_bool(); :}
+       | STRING {: RESULT = new Tipo.Tipo_string(); :}
+       | ID:i {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Tipo.Tipo_id(ul.lexema(), ul.fila(), ul.columna()); :}
+       | ARRAY CAP LITERAL_ENTERO:le CCIERRE OF Tipo:t {: UnidadLexica ul = (UnidadLexica)le; RESULT = new Tipo.Tipo_array(ul.lexema(), t, ul.fila(), ul.columna()); :}
+       | RECORD ListaRecord:lr END_RECORD {: RESULT = new Tipo.Tipo_record(lr); :}
+       | POINTER Tipo:t {: RESULT = new Tipo.Tipo_pointer(t); :};
 
-DecTipo ::= DECTYPE ID:i DOS_PUNTOS Tipo:t {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Dec_tipo(ul.lexema(), t, ul.fila(), ul.columna()); :};
-
-Tipo ::= INT {: RESULT = new Tipo_int(); :}
-       | REAL {: RESULT = new Tipo_real(); :}
-       | BOOL {: RESULT = new Tipo_bool(); :}
-       | STRING {: RESULT = new Tipo_string(); :}
-       | ID:i {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Tipo_id(ul.lexema(), ul.fila(), ul.columna()); :}
-       | ARRAY CAP LITERAL_ENTERO:le CCIERRE OF Tipo:t {: UnidadLexica ul = (UnidadLexica)le; RESULT = new Tipo_array(ul.lexema(), t, ul.fila(), ul.columna()); :}
-       | RECORD ListaRecord:lr END_RECORD {: RESULT = new Tipo_record(lr); :}
-       | POINTER Tipo:t {: RESULT = new Tipo_pointer(t); :};
-
-ListaRecord ::= ListaRecord:lr PUNTO_COMA CamposRecord:cr {: RESULT = new Muchos_camposrecord(lr, cr); :}
-              | CamposRecord:cr {: RESULT = new Un_camporecord(cr); :};
+ListaRecord ::= ListaRecord:lr PUNTO_COMA CamposRecord:cr {: RESULT = new ListaRecord.Muchos_camposrecord(lr, cr); :}
+              | CamposRecord:cr {: RESULT = new ListaRecord.Un_camporecord(cr); :};
 
 CamposRecord ::= ID:i DOS_PUNTOS Tipo:t {: UnidadLexica ul = (UnidadLexica)i; RESULT = new CamposRecord(ul.lexema(), t, ul.fila(), ul.columna()); :};
 
-DecProc ::= DECPROC ID:i PAP ProcParams_0:p PCIERRE LDec_0:l Instrs_0:instr END_PROC {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Dec_proc(ul.lexema(), ul.fila(), ul.columna(), p, l, instr); :};
+ProcParams_0 ::= ProcParams:p {: RESULT = new LProcParams_0.Si_procparam(p); :}
+               | {: RESULT = new LProcParams_0.No_procparam(); :};
 
-ProcParams_0 ::= ProcParams:p {: RESULT = new Si_procparam(p); :}
-               | {: RESULT = new No_procparam(); :};
+ProcParams ::= ProcParams:p COMA Param:pa {: RESULT = new LProcParams.Muchos_procparam(p, pa); :}
+             | Param:pa {: RESULT = new LProcParams.Un_procparam(pa); :};
 
-ProcParams ::= ProcParams:p COMA Param:pa {: RESULT = new Muchos_procparam(p, pa); :}
-             | Param:pa {: RESULT = new Un_procparam(pa); :};
+Param ::= REF ID:i DOS_PUNTOS Tipo:t {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Param.Param_ref(ul.lexema(), t, ul.fila(), ul.columna()); :}
+        | ID:i DOS_PUNTOS Tipo:t {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Param.Param_val(ul.lexema(), t, ul.fila(), ul.columna()); :};
 
-Param ::= REF ID:i DOS_PUNTOS Tipo:t {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Param_ref(ul.lexema(), t, ul.fila(), ul.columna()); :}
-        | ID:i DOS_PUNTOS Tipo:t {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Param_val(ul.lexema(), t, ul.fila(), ul.columna()); :};
+Instrs_0 ::= LInstr:l {: RESULT = new Instrs_0.Si_instr(l); :}
+           | {: RESULT = new Instrs_0.No_instr(); :};
 
-Instrs_0 ::= LInstr:l {: RESULT = new Si_instr(l); :}
-           | {: RESULT = new No_instr(); :};
+LInstr ::= LInstr:l1 PUNTO_COMA Instr:i {: RESULT = new LInstr.Muchas_instr(l1, i); :}
+         | Instr:i {: RESULT = new LInstr.Una_instr(i); :};
 
-LInstr ::= LInstr:l1 PUNTO_COMA Instr:i {: RESULT = new Muchas_instr(l1, i); :}
-         | Instr:i {: RESULT = new Una_instr(i); :};
+LInstr_0 ::= LInstr:l {: RESULT = new LInstr_0.Si_instr_l(l); :}
+           | {: RESULT = new LInstr_0.No_instr_l(); :};
 
-LInstr_0 ::= LInstr:l {: RESULT = new Si_instr_l(l); :}
-           | {: RESULT = new No_instr_l(); :};
+Instr ::= E:e1 ASIGNACION E:e2 {: RESULT = new Instr.Instr_asig(e1, e2); :}
+        | IF E:e DOS_PUNTOS LInstr_0:l END_IF {: RESULT = new Instr.Instr_if(e, l); :}
+        | IF E:e DOS_PUNTOS LInstr_0:l1 ELSE LInstr_0:l2 END_IF {: RESULT = new Instr.Instr_ifelse(e, l1, l2); :}
+        | WHILE E:e DOS_PUNTOS LInstr_0:l END_WHILE {: RESULT = new Instr.Instr_while(e, l); :}
+        | INPUT E:e {: RESULT = new Instr.Instr_lectura(e); :}
+        | OUTPUT E:e {: RESULT = new Instr.Instr_escritura(e); :}
+        | NEW E:e {: RESULT = new Instr.Instr_reserva(e); :}
+        | DISPOSE E:e {: RESULT = new Instr.Instr_liberacion(e); :}
+        | ARROBA ID:i PAP ProcActualParams_0:p PCIERRE {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Instr.Instr_invocar(ul.lexema(), p, ul.fila(), ul.columna()); :}
+        | BLOCK LDec_0:l LInstr_0:i END_BLOCK {: RESULT = new Instr.Instr_compuesta(l, i); :};
 
-Instr ::= InstrAsig:i {: RESULT = i; :}
-        | InstrIf:i {: RESULT = i; :}
-        | InstrIfElse:i {: RESULT = i; :}
-        | InstrWhile:i {: RESULT = i; :}
-        | InstrLectura:i {: RESULT = i; :}
-        | InstrEscritura:i {: RESULT = i; :}
-        | InstrReserva:i {: RESULT = i; :}
-        | InstrLiberacion:i {: RESULT = i; :}
-        | InstrInvocar:i {: RESULT = i; :}
-        | InstrCompuesta:i {: RESULT = i; :};
+ProcActualParams_0 ::= ProcActualParams:p {: RESULT = new LExps_0.Si_exps(p); :}
+                     | {: RESULT = new LExps_0.No_exps(); :};
 
-InstrAsig ::= E0:e1 ASIGNACION E0:e2 {: RESULT = new Instr_asig(e1, e2); :};
+ProcActualParams ::= ProcActualParams:p COMA E:e {: RESULT = new LExps.Muchas_exps(p, e); :}
+                   | E:e {: RESULT = new LExps.Una_exp(e); :};
 
-InstrIf ::= IF E0:e DOS_PUNTOS LInstr_0:l END_IF {: RESULT = new Instr_if(e, l); :};
-
-InstrIfElse ::= IF E0:e DOS_PUNTOS LInstr_0:l1 ELSE LInstr_0:l2 END_IF {: RESULT = new Instr_ifelse(e, l1, l2); :};
-
-InstrWhile ::= WHILE E0:e DOS_PUNTOS LInstr_0:l END_WHILE {: RESULT = new Instr_while(e, l); :};
-
-InstrLectura ::= INPUT E0:e {: RESULT = new Instr_lectura(e); :};
-
-InstrEscritura ::= OUTPUT E0:e {: RESULT = new Instr_escritura(e); :};
-
-InstrReserva ::= NEW E0:e {: RESULT = new Instr_reserva(e); :};
-
-InstrLiberacion ::= DISPOSE E0:e {: RESULT = new Instr_liberacion(e); :};
-
-InstrInvocar ::= ARROBA ID:i PAP ProcActualParams_0:p PCIERRE {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Instr_invocar(ul.lexema(), p, ul.fila(), ul.columna()); :};
-
-InstrCompuesta ::= BLOCK LDec_0:l LInstr_0:i END_BLOCK {: RESULT = new Instr_compuesta(l, i); :};
-
-ProcActualParams_0 ::= ProcActualParams:p {: RESULT = new Si_exps(p); :}
-                     | {: RESULT = new No_exps(); :};
-
-ProcActualParams ::= ProcActualParams:p COMA ActualParam:a {: RESULT = new Muchas_exps(p, a); :}
-                   | ActualParam:a {: RESULT = new Una_exp(a); :};
-
-ActualParam ::= E0:e {: RESULT = e; :};
-
-// Expressions - need to implement the factorized grammar
-
-E0 ::= E1:e RE0:r {: RESULT = r.apply(e); :};
-
-RE0 ::= Op0:o E1:e {: RESULT = new RE0_op(o, e); :}
-      | {: RESULT = new RE0_eps(); :};
-
-Op0 ::= MENOR {: RESULT = "<"; :}
-     | MAYOR {: RESULT = ">"; :}
-     | MENOR_IGUAL {: RESULT = "<="; :}
-     | MAYOR_IGUAL {: RESULT = ">="; :}
-     | IGUAL {: RESULT = "="; :}
-     | DISTINTO {: RESULT = "<>"; :};
-
-Op1 ::= MAS {: RESULT = "+"; :}
-     | MENOS {: RESULT = "-"; :}
-     | OR {: RESULT = "|"; :};
-
-Op2 ::= POR {: RESULT = "*"; :}
-     | DIV {: RESULT = "/"; :}
-     | MOD {: RESULT = "%"; :}
-     | AND {: RESULT = "&"; :};
-
-E1 ::= E2:e RE1:r {: RESULT = r.apply(e); :};
-
-RE1 ::= OR E2:e {: RESULT = new RE1_or(e); :}
-      | {: RESULT = new RE1_eps(); :};
-
-E2 ::= E3:e RE2:r {: RESULT = r.apply(e); :};
-
-RE2 ::= AND E3:e {: RESULT = new RE2_and(e); :}
-      | {: RESULT = new RE2_eps(); :};
-
-E3 ::= MENOS E3:e {: UnidadLexica ul = (UnidadLexica)MENOS; RESULT = new Exp_menos_unario(e, ul.fila(), ul.columna()); :}
-     | NOT E3:e {: UnidadLexica ul = (UnidadLexica)NOT; RESULT = new Exp_not(e, ul.fila(), ul.columna()); :}
-     | E4:e {: RESULT = e; :};
-
-E4 ::= E5:e RE3:r {: RESULT = r.apply(e); :};
-
-RE3 ::= PUNTO ID:i {: UnidadLexica ul = (UnidadLexica)i; RESULT = new RE3_op(new Op_campo(ul.lexema(), ul.fila(), ul.columna())); :}
-     | FLECHA ID:i {: UnidadLexica ul = (UnidadLexica)i; RESULT = new RE3_op(new Op_flecha(ul.lexema(), ul.fila(), ul.columna())); :}
-     | CAP E0:e CCIERRE {: UnidadLexica ul = (UnidadLexica)CAP; RESULT = new RE3_op(new Op_array(e, ul.fila(), ul.columna())); :}
-     | {: RESULT = new RE3_eps(); :};
-
-E5 ::= POR E5:e {: UnidadLexica ul = (UnidadLexica)POR; RESULT = new Exp_asterisco_unario(e, ul.fila(), ul.columna()); :}
-     | E6:e {: RESULT = e; :};
-
-E6 ::= ID:i {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Iden(ul.lexema(), ul.fila(), ul.columna()); :}
-     | LITERAL_ENTERO:le {: UnidadLexica ul = (UnidadLexica)le; RESULT = new Lit_int(ul.lexema(), ul.fila(), ul.columna()); :}
-     | LITERAL_REAL:lr {: UnidadLexica ul = (UnidadLexica)lr; RESULT = new Lit_real(ul.lexema(), ul.fila(), ul.columna()); :}
-     | TRUE {: UnidadLexica ul = (UnidadLexica)TRUE; RESULT = new Lit_bool(ul.lexema(), ul.fila(), ul.columna()); :}
-     | FALSE {: UnidadLexica ul = (UnidadLexica)FALSE; RESULT = new Lit_bool(ul.lexema(), ul.fila(), ul.columna()); :}
-     | CADENA_LITERAL:cl {: UnidadLexica ul = (UnidadLexica)cl; RESULT = new Lit_string(ul.lexema(), ul.fila(), ul.columna()); :}
-     | NULL {: UnidadLexica ul = (UnidadLexica)NULL; RESULT = new Exp_null(ul.fila(), ul.columna()); :}
-     | PAP E0:e PCIERRE {: RESULT = e; :};
-Instr ::= InstrAsig:i {: RESULT = i; :}
-        | InstrIf:i {: RESULT = i; :}
-        | InstrIfElse:i {: RESULT = i; :}
-        | InstrWhile:i {: RESULT = i; :}
-        | InstrLectura:i {: RESULT = i; :}
-        | InstrEscritura:i {: RESULT = i; :}
-        | InstrReserva:i {: RESULT = i; :}
-        | InstrLiberacion:i {: RESULT = i; :}
-        | InstrInvocar:i {: RESULT = i; :}
-        | InstrCompuesta:i {: RESULT = i; :};
-
-InstrAsig ::= E0:e1 ASIGNACION E0:e2 {: RESULT = new Instr_asig(e1, e2); :};
-
-InstrIf ::= IF E0:e DOS_PUNTOS LInstr_0:l END_IF {: RESULT = new Instr_if(e, l); :};
-
-InstrIfElse ::= IF E0:e DOS_PUNTOS LInstr_0:l1 ELSE LInstr_0:l2 END_IF {: RESULT = new Instr_ifelse(e, l1, l2); :};
-
-InstrWhile ::= WHILE E0:e DOS_PUNTOS LInstr_0:l END_WHILE {: RESULT = new Instr_while(e, l); :};
-
-InstrLectura ::= INPUT E0:e {: RESULT = new Instr_lectura(e); :};
-
-InstrEscritura ::= OUTPUT E0:e {: RESULT = new Instr_escritura(e); :};
-
-InstrReserva ::= NEW E0:e {: RESULT = new Instr_reserva(e); :};
-
-InstrLiberacion ::= DISPOSE E0:e {: RESULT = new Instr_liberacion(e); :};
-
-InstrInvocar ::= ARROBA ID:i PAP ProcActualParams_0:p PCIERRE {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Instr_invocar(ul.lexema(), p, ul.fila(), ul.columna()); :};
-
-InstrCompuesta ::= BLOCK LDec_0:l LInstr_0:i END_BLOCK {: RESULT = new Instr_compuesta(l, i); :};
-
-ProcActualParams_0 ::= ProcActualParams:p {: RESULT = new Si_exps(p); :}
-                     | {: RESULT = new No_exps(); :};
-
-ProcActualParams ::= ProcActualParams:p COMA ActualParam:a {: RESULT = new Muchas_exps(p, a); :}
-                   | ActualParam:a {: RESULT = new Una_exp(a); :};
-
-ActualParam ::= E0:e {: RESULT = e; :};
-
-InstrInvocar ::= ARROBA ID PAP ProcActualParams_0 PCIERRE ;
-
-ProcActualParams_0 ::= ProcActualParams
-                     | ;
-
-ProcActualParams ::= ProcActualParams COMA ActualParam
-                   | ActualParam ;
-
-ActualParam ::= E0 ;
-
-InstrCompuesta ::= BLOCK LDec_0 Instrs_0 END_BLOCK ;
-
-E0 ::= E1 Op0 E1
-     | E1 ;
-
-Op0 ::= MENOR | MAYOR | MENOR_IGUAL | MAYOR_IGUAL | IGUAL | DISTINTO ;
-
-E1 ::= E1 Op1 E2
-     | E2 OR E2
-     | E2 ;
-
-Op1 ::= MAS | MENOS ;
-
-E2 ::= E2 Op2 E3
-     | E3 AND E3
-     | E3 ;
-
-Op2 ::= POR | DIV | MOD ;
-
-E3 ::= MENOS E3
-     | NOT E4
-     | E4 ;
-
-E4 ::= E4 CAP E0 CCIERRE
-     | E4 PUNTO ID
-     | E4 FLECHA ID
-     | E5 ;
-
-E5 ::= POR E5
-     | E6 ;
-
-E6 ::= ID
-     | LITERAL_ENTERO
-     | LITERAL_REAL
-     | TRUE
-     | FALSE
-     | CADENA_LITERAL
-     | NULL
-     | PAP E0 PCIERRE ;
+E ::= E:e1 MAS E:e2 {: RESULT = new Exp.Exp_suma(e1, e2, 0, 0); :}
+    | E:e1 MENOS E:e2 {: RESULT = new Exp.Exp_resta(e1, e2, 0, 0); :}
+    | E:e1 POR E:e2 {: RESULT = new Exp.Exp_mul(e1, e2, 0, 0); :}
+    | E:e1 DIV E:e2 {: RESULT = new Exp.Exp_div(e1, e2, 0, 0); :}
+    | E:e1 MOD E:e2 {: RESULT = new Exp.Exp_mod(e1, e2, 0, 0); :}
+    | E:e1 MENOR E:e2 {: RESULT = new Exp.Exp_menor(e1, e2, 0, 0); :}
+    | E:e1 MAYOR E:e2 {: RESULT = new Exp.Exp_mayor(e1, e2, 0, 0); :}
+    | E:e1 MENOR_IGUAL E:e2 {: RESULT = new Exp.Exp_menor_igual(e1, e2, 0, 0); :}
+    | E:e1 MAYOR_IGUAL E:e2 {: RESULT = new Exp.Exp_mayor_igual(e1, e2, 0, 0); :}
+    | E:e1 IGUAL E:e2 {: RESULT = new Exp.Exp_igual(e1, e2, 0, 0); :}
+    | E:e1 DISTINTO E:e2 {: RESULT = new Exp.Exp_distinto(e1, e2, 0, 0); :}
+    | E:e1 AND E:e2 {: RESULT = new Exp.Exp_and(e1, e2, 0, 0); :}
+    | E:e1 OR E:e2 {: RESULT = new Exp.Exp_or(e1, e2, 0, 0); :}
+    | MENOS E:e {: RESULT = new Exp.Exp_menos_unario(e, 0, 0); :} %prec NOT
+    | NOT E:e {: RESULT = new Exp.Exp_not(e, 0, 0); :}
+    | POR E:e {: RESULT = new Exp.Exp_asterisco_unario(e, 0, 0); :} %prec NOT
+    | E:e CAP E:e0 CCIERRE {: RESULT = new Exp.Exp_array(e, e0, 0, 0); :}
+    | E:e PUNTO ID:i {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Exp.Exp_campo(e, ul.lexema(), ul.fila(), ul.columna()); :}
+    | E:e FLECHA ID:i {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Exp.Exp_flecha(e, ul.lexema(), ul.fila(), ul.columna()); :}
+    | ID:i {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Exp.Iden(ul.lexema(), ul.fila(), ul.columna()); :}
+    | LITERAL_ENTERO:le {: UnidadLexica ul = (UnidadLexica)le; RESULT = new Exp.Lit_int(ul.lexema(), ul.fila(), ul.columna()); :}
+    | LITERAL_REAL:lr {: UnidadLexica ul = (UnidadLexica)lr; RESULT = new Exp.Lit_real(ul.lexema(), ul.fila(), ul.columna()); :}
+    | TRUE:t {: UnidadLexica ul = (UnidadLexica)t; RESULT = new Exp.Lit_bool(ul.lexema(), ul.fila(), ul.columna()); :}
+    | FALSE:f {: UnidadLexica ul = (UnidadLexica)f; RESULT = new Exp.Lit_bool(ul.lexema(), ul.fila(), ul.columna()); :}
+    | CADENA_LITERAL:cl {: UnidadLexica ul = (UnidadLexica)cl; RESULT = new Exp.Lit_string(ul.lexema(), ul.fila(), ul.columna()); :}
+    | NULL:n {: UnidadLexica ul = (UnidadLexica)n; RESULT = new Exp.Exp_null(ul.fila(), ul.columna()); :}
+    | PAP E:e PCIERRE {: RESULT = e; :};

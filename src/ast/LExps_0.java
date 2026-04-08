@@ -4,40 +4,40 @@ public abstract class LExps_0 {
     public abstract void accept(Visitor v);
     public abstract String imprime();
     public abstract void process(Procesamiento p);
-}
 
-class Si_exps extends LExps_0 {
-    public LExps exps;
+    public static class Si_exps extends LExps_0 {
+        public LExps exps;
 
-    public Si_exps(LExps exps) {
-        this.exps = exps;
+        public Si_exps(LExps exps) {
+            this.exps = exps;
+        }
+
+        public void accept(Visitor v) {
+            v.visit(this);
+        }
+
+        public String imprime() {
+            return exps.imprime();
+        }
+
+        public void process(Procesamiento p) {
+            p.process(this);
+        }
     }
 
-    public void accept(Visitor v) {
-        v.visit(this);
-    }
+    public static class No_exps extends LExps_0 {
+        public No_exps() {}
 
-    public String imprime() {
-        return exps.imprime();
-    }
+        public void accept(Visitor v) {
+            v.visit(this);
+        }
 
-    public void process(Procesamiento p) {
-        p.process(this);
-    }
-}
+        public String imprime() {
+            return "";
+        }
 
-class No_exps extends LExps_0 {
-    public No_exps() {}
-
-    public void accept(Visitor v) {
-        v.visit(this);
-    }
-
-    public String imprime() {
-        return "";
-    }
-
-    public void process(Procesamiento p) {
-        p.process(this);
+        public void process(Procesamiento p) {
+            p.process(this);
+        }
     }
 }

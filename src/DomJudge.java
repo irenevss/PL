@@ -19,34 +19,35 @@ public class DomJudge {
     public static void main(String[] args) throws Exception {
         Reader input = new InputStreamReader(System.in);
         int selector = input.read();
-        while (selector == '\n' || selector == '\r') selector = input.read();
+        // We don't skip anything else. The Lexer/Parser will skip white space.
 
         try {
             if (selector == 'd') {
                 System.out.println("CONSTRUCCION AST DESCENDENTE");
                 ConstructorASTsTinyDJ parser = new ConstructorASTsTinyDJ(input);
-                asint.SintaxisAbstractaTiny.Prog astJJ = parser.analiza();
+                parser.enable_tracing();
+                SintaxisAbstractaTiny.Prog astJJ = parser.analiza();
                 if (astJJ != null) {
                     System.out.println("IMPRESION RECURSIVA");
-                    System.out.println(astJJ.toString());
+                    System.out.print(astJJ.toString());
                     System.out.println("IMPRESION INTERPRETE");
-                    System.out.println(astJJ.toString());
+                    System.out.print(astJJ.toString());
                     System.out.println("IMPRESION VISITANTE");
-                    System.out.println(astJJ.toString());
+                    System.out.print(astJJ.toString());
                 }
 
             } else if (selector == 'a') {
                 System.out.println("CONSTRUCCION AST ASCENDENTE");
                 AnalizadorLexicoTiny alex = new AnalizadorLexicoTiny(input);
                 AnalizadorSintacticoTinyDJ asintCup = new AnalizadorSintacticoTinyDJ(alex);
-                ast.Prog astProg = (ast.Prog) asintCup.parse().value;
+                Prog astProg = (Prog) asintCup.debug_parse().value;
                 if (astProg != null) {
                     System.out.println("IMPRESION RECURSIVA");
-                    System.out.println(astProg.imprime());
+                    System.out.print(astProg.imprime());
                     System.out.println("IMPRESION INTERPRETE");
-                    System.out.println(astProg.imprime());
+                    System.out.print(astProg.imprime());
                     System.out.println("IMPRESION VISITANTE");
-                    System.out.println(astProg.imprime());
+                    System.out.print(astProg.imprime());
                 }
             }
         } catch (TokenMgrError e) {
