@@ -196,4 +196,8 @@ public class ConstructorASTsTinyDJ extends ConstructorASTsTiny {
                 break;
         }
     }
+    @Override
+    protected void trace_call(String s) {}
+    @Override
+    protected void trace_return(String s) {}
 }

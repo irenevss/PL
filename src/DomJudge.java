@@ -1,25 +1,17 @@
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.IOException;
-
-// JavaCC Imports
+import alex.AnalizadorLexicoTiny;
 import asint.ConstructorASTsTinyDJ;
 import asint.SintaxisAbstractaTiny;
-import asint.TokenMgrError;
-import asint.ParseException;
-
-// JFlex/CUP Imports
-import alex.AnalizadorLexicoTiny;
-import asint_cup.AnalizadorSintacticoTinyDJ;
 import errors.GestionErroresTiny.ErrorLexico;
 import errors.GestionErroresTiny.ErrorSintactico;
-import ast.Prog;
+import asint.ParseException;
+import asint.TokenMgrError;
 
 public class DomJudge {
     public static void main(String[] args) throws Exception {
         Reader input = new InputStreamReader(System.in);
         int selector = input.read();
-        // We don't skip anything else. The Lexer/Parser will skip white space.
 
         try {
             if (selector == 'd') {
@@ -29,18 +21,18 @@ public class DomJudge {
                 SintaxisAbstractaTiny.Prog astJJ = parser.analiza();
                 if (astJJ != null) {
                     System.out.println("IMPRESION RECURSIVA");
-                    System.out.print(astJJ.toString());
+                    System.out.print(astJJ.imprime());
                     System.out.println("IMPRESION INTERPRETE");
-                    System.out.print(astJJ.toString());
+                    System.out.print(astJJ.imprime());
                     System.out.println("IMPRESION VISITANTE");
-                    System.out.print(astJJ.toString());
+                    System.out.print(astJJ.imprime());
                 }
 
             } else if (selector == 'a') {
                 System.out.println("CONSTRUCCION AST ASCENDENTE");
                 AnalizadorLexicoTiny alex = new AnalizadorLexicoTiny(input);
-                AnalizadorSintacticoTinyDJ asintCup = new AnalizadorSintacticoTinyDJ(alex);
-                Prog astProg = (Prog) asintCup.debug_parse().value;
+                asint_cup.AnalizadorSintacticoTinyDJ asintCup = new asint_cup.AnalizadorSintacticoTinyDJ(alex);
+                ast.Prog astProg = (ast.Prog) asintCup.debug_parse().value;
                 if (astProg != null) {
                     System.out.println("IMPRESION RECURSIVA");
                     System.out.print(astProg.imprime());
