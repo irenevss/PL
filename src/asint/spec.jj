@@ -227,7 +227,7 @@ Tipo Tipo() :
    t=<ID> { return (Tipo)sem.tipo_id(t.image).ponFila(t.beginLine).ponCol(t.beginColumn); }
  |
    <ARRAY> <CAP> t=<LITERAL_ENTERO> <CCIERRE> <OF> tipo=Tipo()
-      { return sem.tipo_array(t.image,tipo); }
+      { return (Tipo)sem.tipo_array(t.image,tipo).ponFila(t.beginLine).ponCol(t.beginColumn); }
  |
    <POINTER> tipo=Tipo()
       { return sem.tipo_pointer(tipo); }
@@ -664,10 +664,10 @@ Exp RE3_prime(Exp eh) :
    Token id;
 }
 {
-   t=<PUNTO> id=<ID> r=RE3_prime(sem.aplicar_postfijo(".",eh,null,id.image,t.beginLine,t.beginColumn))
+   t=<PUNTO> id=<ID> r=RE3_prime(sem.aplicar_postfijo(".",eh,null,id.image,id.beginLine,id.beginColumn))
       { return r; }
 |
-   t=<FLECHA> id=<ID> r=RE3_prime(sem.aplicar_postfijo("->",eh,null,id.image,t.beginLine,t.beginColumn))
+   t=<FLECHA> id=<ID> r=RE3_prime(sem.aplicar_postfijo("->",eh,null,id.image,id.beginLine,id.beginColumn))
       { return r; }
 |
    t=<CAP> indice=E0() <CCIERRE> r=RE3_prime(sem.aplicar_postfijo("[]",eh,indice,null,t.beginLine,t.beginColumn))

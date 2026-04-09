@@ -38,6 +38,7 @@ test.txt
 *.res
 *.log
 casos/*.diff
+actual_output.tmp
 
 # OS generated files
 Thumbs.db

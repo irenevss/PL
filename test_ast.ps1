@@ -14,7 +14,7 @@ Write-Host "--- Generating Parser (JavaCC) ---" -ForegroundColor Cyan
 cmd /c "java -cp javacc.jar javacc -OUTPUT_DIRECTORY=$SRC/asint $SRC/asint/spec.jj"
 
 Write-Host "--- Generating Parser (CUP) ---" -ForegroundColor Cyan
-cmd /c "java -cp cup.jar java_cup.Main -parser AnalizadorSintacticoTiny -symbols ClaseLexica -destdir $SRC/asint_cup $SRC/asint_cup/spec.cup"
+cmd /c "java -cp cup.jar java_cup.Main -parser AnalizadorSintacticoTiny -symbols ClaseLexica -nopositions -destdir $SRC/asint_cup $SRC/asint_cup/spec.cup"
 
 Write-Host "--- Generating Lexer (JFlex) ---" -ForegroundColor Cyan
 cmd /c "java -jar jflex.jar -d $SRC/alex $SRC/alex/spec.jflex"

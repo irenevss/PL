@@ -12,10 +12,16 @@ public abstract class Exp {
 
         if (prior_opnd < minPrior) {
             needs_parens = true;
-        }
-
-        if (prior_opnd == minPrior && isRight && (prior_opnd == 1 || prior_opnd == 2 || prior_opnd == 3 || prior_opnd == 5)) {
-            needs_parens = true;
+        } else if (prior_opnd == minPrior) {
+            if (isRight) {
+                if (minPrior <= 4) {
+                    needs_parens = true;
+                }
+            } else {
+                if (minPrior == 0 || minPrior == 2) {
+                    needs_parens = true;
+                }
+            }
         }
 
         if (needs_parens) {
@@ -42,7 +48,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return imprimeOpnd(opnd0, 2, false) + "+\n" + imprimeOpnd(opnd1, 2, true);
+            return imprimeOpnd(opnd0, 1, false) + "+$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 1, true);
         }
 
         public void process(Procesamiento p) {
@@ -50,7 +56,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 2;
+            return 1;
         }
     }
 
@@ -71,7 +77,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return imprimeOpnd(opnd0, 2, false) + "-\n" + imprimeOpnd(opnd1, 2, true);
+            return imprimeOpnd(opnd0, 1, false) + "-$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 1, true);
         }
 
         public void process(Procesamiento p) {
@@ -79,7 +85,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 2;
+            return 1;
         }
     }
 
@@ -100,7 +106,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return imprimeOpnd(opnd0, 3, false) + "*\n" + imprimeOpnd(opnd1, 3, true);
+            return imprimeOpnd(opnd0, 3, false) + "*$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 3, true);
         }
 
         public void process(Procesamiento p) {
@@ -129,7 +135,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return imprimeOpnd(opnd0, 3, false) + "/\n" + imprimeOpnd(opnd1, 3, true);
+            return imprimeOpnd(opnd0, 3, false) + "/$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 3, true);
         }
 
         public void process(Procesamiento p) {
@@ -158,7 +164,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return imprimeOpnd(opnd0, 3, false) + "%\n" + imprimeOpnd(opnd1, 3, true);
+            return imprimeOpnd(opnd0, 3, false) + "%$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 3, true);
         }
 
         public void process(Procesamiento p) {
@@ -187,7 +193,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return imprimeOpnd(opnd0, 3, false) + "&\n" + imprimeOpnd(opnd1, 3, true);
+            return imprimeOpnd(opnd0, 4, false) + "&$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 4, true);
         }
 
         public void process(Procesamiento p) {
@@ -195,7 +201,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 3;
+            return 4;
         }
     }
 
@@ -216,7 +222,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return imprimeOpnd(opnd0, 2, false) + "|\n" + imprimeOpnd(opnd1, 2, true);
+            return imprimeOpnd(opnd0, 2, false) + "|$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 2, true);
         }
 
         public void process(Procesamiento p) {
@@ -245,7 +251,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return imprimeOpnd(opnd0, 1, false) + "<\n" + imprimeOpnd(opnd1, 1, true);
+            return imprimeOpnd(opnd0, 0, false) + "<$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 0, true);
         }
 
         public void process(Procesamiento p) {
@@ -253,7 +259,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 1;
+            return 0;
         }
     }
 
@@ -274,7 +280,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return imprimeOpnd(opnd0, 1, false) + ">\n" + imprimeOpnd(opnd1, 1, true);
+            return imprimeOpnd(opnd0, 0, false) + ">$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 0, true);
         }
 
         public void process(Procesamiento p) {
@@ -282,7 +288,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 1;
+            return 0;
         }
     }
 
@@ -303,7 +309,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return imprimeOpnd(opnd0, 1, false) + "<=\n" + imprimeOpnd(opnd1, 1, true);
+            return imprimeOpnd(opnd0, 0, false) + "<=$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 0, true);
         }
 
         public void process(Procesamiento p) {
@@ -311,7 +317,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 1;
+            return 0;
         }
     }
 
@@ -332,7 +338,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return imprimeOpnd(opnd0, 1, false) + ">=\n" + imprimeOpnd(opnd1, 1, true);
+            return imprimeOpnd(opnd0, 0, false) + ">=$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 0, true);
         }
 
         public void process(Procesamiento p) {
@@ -340,7 +346,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 1;
+            return 0;
         }
     }
 
@@ -361,7 +367,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return imprimeOpnd(opnd0, 1, false) + "=\n" + imprimeOpnd(opnd1, 1, true);
+            return imprimeOpnd(opnd0, 0, false) + "=$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 0, true);
         }
 
         public void process(Procesamiento p) {
@@ -369,7 +375,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 1;
+            return 0;
         }
     }
 
@@ -390,7 +396,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return imprimeOpnd(opnd0, 1, false) + "<>\n" + imprimeOpnd(opnd1, 1, true);
+            return imprimeOpnd(opnd0, 0, false) + "<>$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 0, true);
         }
 
         public void process(Procesamiento p) {
@@ -398,7 +404,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 1;
+            return 0;
         }
     }
 
@@ -417,7 +423,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return "-\n" + imprimeOpnd(opnd, 4, true);
+            return "-$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd, 5, true);
         }
 
         public void process(Procesamiento p) {
@@ -425,7 +431,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 4;
+            return 5;
         }
     }
 
@@ -444,7 +450,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return "!\n" + imprimeOpnd(opnd, 4, true);
+            return "!$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd, 5, true);
         }
 
         public void process(Procesamiento p) {
@@ -452,7 +458,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 4;
+            return 5;
         }
     }
 
@@ -471,7 +477,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return "*\n" + imprimeOpnd(opnd, 4, true);
+            return "*$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd, 7, true);
         }
 
         public void process(Procesamiento p) {
@@ -479,7 +485,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 4;
+            return 7;
         }
     }
 
@@ -498,7 +504,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return id + "\n";
+            return id + "$f:" + fila + ",c:" + col + "$\n";
         }
 
         public void process(Procesamiento p) {
@@ -506,7 +512,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 6;
+            return 8;
         }
     }
 
@@ -525,7 +531,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return val + "\n";
+            return val + "$f:" + fila + ",c:" + col + "$\n";
         }
 
         public void process(Procesamiento p) {
@@ -533,7 +539,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 6;
+            return 8;
         }
     }
 
@@ -552,7 +558,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return val + "\n";
+            return val + "$f:" + fila + ",c:" + col + "$\n";
         }
 
         public void process(Procesamiento p) {
@@ -560,7 +566,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 6;
+            return 8;
         }
     }
 
@@ -579,7 +585,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return val + "\n";
+            return val + "$f:" + fila + ",c:" + col + "$\n";
         }
 
         public void process(Procesamiento p) {
@@ -587,7 +593,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 6;
+            return 8;
         }
     }
 
@@ -606,7 +612,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return val + "\n";
+            return val + "$f:" + fila + ",c:" + col + "$\n";
         }
 
         public void process(Procesamiento p) {
@@ -614,7 +620,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 6;
+            return 8;
         }
     }
 
@@ -631,7 +637,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return "null\n";
+            return "<null>$f:" + fila + ",c:" + col + "$\n";
         }
 
         public void process(Procesamiento p) {
@@ -639,7 +645,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 6;
+            return 8;
         }
     }
 
@@ -660,7 +666,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return imprimeOpnd(base, 5, false) + ".\n" + id + "\n";
+            return imprimeOpnd(base, 6, false) + ".\n" + id + "$f:" + fila + ",c:" + col + "$\n";
         }
 
         public void process(Procesamiento p) {
@@ -668,7 +674,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 5;
+            return 6;
         }
     }
 
@@ -689,7 +695,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return imprimeOpnd(base, 5, false) + "->\n" + id + "\n";
+            return imprimeOpnd(base, 6, false) + "->\n" + id + "$f:" + fila + ",c:" + col + "$\n";
         }
 
         public void process(Procesamiento p) {
@@ -697,7 +703,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 5;
+            return 6;
         }
     }
 
@@ -718,7 +724,7 @@ public abstract class Exp {
         }
 
         public String imprime() {
-            return imprimeOpnd(opnd0, 5, false) + "[\n" + opnd1.imprime() + "]\n";
+            return imprimeOpnd(opnd0, 6, false) + "[$f:" + fila + ",c:" + col + "$\n" + opnd1.imprime() + "]\n";
         }
 
         public void process(Procesamiento p) {
@@ -726,7 +732,7 @@ public abstract class Exp {
         }
 
         public int prioridad() {
-            return 5;
+            return 6;
         }
     }
     public static abstract class PostfixOp {

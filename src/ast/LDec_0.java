@@ -17,7 +17,7 @@ public abstract class LDec_0 {
         }
 
         public String imprime() {
-            return decs.imprime();
+            return decs.imprime() + "--\n";
         }
 
         public void process(Procesamiento p) {

@@ -123,23 +123,23 @@ ProcActualParams_0 ::= ProcActualParams:p {: RESULT = new LExps_0.Si_exps(p); :}
 ProcActualParams ::= ProcActualParams:p COMA E:e {: RESULT = new LExps.Muchas_exps(p, e); :}
                    | E:e {: RESULT = new LExps.Una_exp(e); :};
 
-E ::= E:e1 MAS E:e2 {: RESULT = new Exp.Exp_suma(e1, e2, 0, 0); :}
-    | E:e1 MENOS E:e2 {: RESULT = new Exp.Exp_resta(e1, e2, 0, 0); :}
-    | E:e1 POR E:e2 {: RESULT = new Exp.Exp_mul(e1, e2, 0, 0); :}
-    | E:e1 DIV E:e2 {: RESULT = new Exp.Exp_div(e1, e2, 0, 0); :}
-    | E:e1 MOD E:e2 {: RESULT = new Exp.Exp_mod(e1, e2, 0, 0); :}
-    | E:e1 MENOR E:e2 {: RESULT = new Exp.Exp_menor(e1, e2, 0, 0); :}
-    | E:e1 MAYOR E:e2 {: RESULT = new Exp.Exp_mayor(e1, e2, 0, 0); :}
-    | E:e1 MENOR_IGUAL E:e2 {: RESULT = new Exp.Exp_menor_igual(e1, e2, 0, 0); :}
-    | E:e1 MAYOR_IGUAL E:e2 {: RESULT = new Exp.Exp_mayor_igual(e1, e2, 0, 0); :}
-    | E:e1 IGUAL E:e2 {: RESULT = new Exp.Exp_igual(e1, e2, 0, 0); :}
-    | E:e1 DISTINTO E:e2 {: RESULT = new Exp.Exp_distinto(e1, e2, 0, 0); :}
-    | E:e1 AND E:e2 {: RESULT = new Exp.Exp_and(e1, e2, 0, 0); :}
-    | E:e1 OR E:e2 {: RESULT = new Exp.Exp_or(e1, e2, 0, 0); :}
-    | MENOS E:e {: RESULT = new Exp.Exp_menos_unario(e, 0, 0); :} %prec NOT
-    | NOT E:e {: RESULT = new Exp.Exp_not(e, 0, 0); :}
-    | POR E:e {: RESULT = new Exp.Exp_asterisco_unario(e, 0, 0); :} %prec NOT
-    | E:e CAP E:e0 CCIERRE {: RESULT = new Exp.Exp_array(e, e0, 0, 0); :}
+E ::= E:e1 MAS:op E:e2 {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp.Exp_suma(e1, e2, ul.fila(), ul.columna()); :}
+    | E:e1 MENOS:op E:e2 {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp.Exp_resta(e1, e2, ul.fila(), ul.columna()); :}
+    | E:e1 POR:op E:e2 {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp.Exp_mul(e1, e2, ul.fila(), ul.columna()); :}
+    | E:e1 DIV:op E:e2 {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp.Exp_div(e1, e2, ul.fila(), ul.columna()); :}
+    | E:e1 MOD:op E:e2 {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp.Exp_mod(e1, e2, ul.fila(), ul.columna()); :}
+    | E:e1 MENOR:op E:e2 {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp.Exp_menor(e1, e2, ul.fila(), ul.columna()); :}
+    | E:e1 MAYOR:op E:e2 {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp.Exp_mayor(e1, e2, ul.fila(), ul.columna()); :}
+    | E:e1 MENOR_IGUAL:op E:e2 {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp.Exp_menor_igual(e1, e2, ul.fila(), ul.columna()); :}
+    | E:e1 MAYOR_IGUAL:op E:e2 {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp.Exp_mayor_igual(e1, e2, ul.fila(), ul.columna()); :}
+    | E:e1 IGUAL:op E:e2 {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp.Exp_igual(e1, e2, ul.fila(), ul.columna()); :}
+    | E:e1 DISTINTO:op E:e2 {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp.Exp_distinto(e1, e2, ul.fila(), ul.columna()); :}
+    | E:e1 AND:op E:e2 {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp.Exp_and(e1, e2, ul.fila(), ul.columna()); :}
+    | E:e1 OR:op E:e2 {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp.Exp_or(e1, e2, ul.fila(), ul.columna()); :}
+    | MENOS:op E:e {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp.Exp_menos_unario(e, ul.fila(), ul.columna()); :} %prec NOT
+    | NOT:op E:e {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp.Exp_not(e, ul.fila(), ul.columna()); :}
+    | POR:op E:e {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp.Exp_asterisco_unario(e, ul.fila(), ul.columna()); :} %prec NOT
+    | E:e CAP:op E:e0 CCIERRE {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp.Exp_array(e, e0, ul.fila(), ul.columna()); :}
     | E:e PUNTO ID:i {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Exp.Exp_campo(e, ul.lexema(), ul.fila(), ul.columna()); :}
     | E:e FLECHA ID:i {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Exp.Exp_flecha(e, ul.lexema(), ul.fila(), ul.columna()); :}
     | ID:i {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Exp.Iden(ul.lexema(), ul.fila(), ul.columna()); :}
