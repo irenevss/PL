@@ -1,5 +1,7 @@
 package ast;
 
+import static ast.SintaxisAbstractaTiny.*;
+
 public class RE {
     public abstract static class RE0 {
         public abstract Exp apply(Exp left);
@@ -15,12 +17,12 @@ public class RE {
         }
 
         public Exp apply(Exp left) {
-            if (op.equals("<")) return new Exp.Exp_menor(left, right, 0, 0);
-            if (op.equals(">")) return new Exp.Exp_mayor(left, right, 0, 0);
-            if (op.equals("<=")) return new Exp.Exp_menor_igual(left, right, 0, 0);
-            if (op.equals(">=")) return new Exp.Exp_mayor_igual(left, right, 0, 0);
-            if (op.equals("=")) return new Exp.Exp_igual(left, right, 0, 0);
-            if (op.equals("<>")) return new Exp.Exp_distinto(left, right, 0, 0);
+            if (op.equals("<")) return new Exp_menor(left, right, 0, 0);
+            if (op.equals(">")) return new Exp_mayor(left, right, 0, 0);
+            if (op.equals("<=")) return new Exp_menor_igual(left, right, 0, 0);
+            if (op.equals(">=")) return new Exp_mayor_igual(left, right, 0, 0);
+            if (op.equals("=")) return new Exp_igual(left, right, 0, 0);
+            if (op.equals("<>")) return new Exp_distinto(left, right, 0, 0);
             return null; // error
         }
     }
@@ -45,9 +47,9 @@ public class RE {
         }
 
         public Exp apply(Exp left) {
-            if (op.equals("+")) return new Exp.Exp_suma(left, right, 0, 0);
-            if (op.equals("-")) return new Exp.Exp_resta(left, right, 0, 0);
-            if (op.equals("|")) return new Exp.Exp_or(left, right, 0, 0);
+            if (op.equals("+")) return new Exp_suma(left, right, 0, 0);
+            if (op.equals("-")) return new Exp_resta(left, right, 0, 0);
+            if (op.equals("|")) return new Exp_or(left, right, 0, 0);
             return null;
         }
     }
@@ -72,10 +74,10 @@ public class RE {
         }
 
         public Exp apply(Exp left) {
-            if (op.equals("*")) return new Exp.Exp_mul(left, right, 0, 0);
-            if (op.equals("/")) return new Exp.Exp_div(left, right, 0, 0);
-            if (op.equals("%")) return new Exp.Exp_mod(left, right, 0, 0);
-            if (op.equals("&")) return new Exp.Exp_and(left, right, 0, 0);
+            if (op.equals("*")) return new Exp_mul(left, right, 0, 0);
+            if (op.equals("/")) return new Exp_div(left, right, 0, 0);
+            if (op.equals("%")) return new Exp_mod(left, right, 0, 0);
+            if (op.equals("&")) return new Exp_and(left, right, 0, 0);
             return null;
         }
     }
@@ -91,9 +93,9 @@ public class RE {
     }
 
     public static class RE3_op extends RE3 {
-        public Exp.PostfixOp op;
+        public PostfixOp op;
 
-        public RE3_op(Exp.PostfixOp op) {
+        public RE3_op(PostfixOp op) {
             this.op = op;
         }
 

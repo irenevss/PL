@@ -23,7 +23,7 @@ public class DomJudge {
         return sb.toString();
     }
 
-    private static void imprimeProcesamientos(ast.Prog astProg) {
+    private static void imprimeProcesamientos(ast.SintaxisAbstractaTiny.Prog astProg) {
         ImpresionRecursiva rec = new ImpresionRecursiva();
         ImpresionInterprete intr = new ImpresionInterprete();
         ImpresionVisitante vis = new ImpresionVisitante();
@@ -50,7 +50,7 @@ public class DomJudge {
                 if (astJJ != null) {
                     AnalizadorLexicoTiny alex = new AnalizadorLexicoTiny(new StringReader(source));
                     asint_cup.AnalizadorSintacticoTinyDJ asintCup = new asint_cup.AnalizadorSintacticoTinyDJ(alex);
-                    ast.Prog astProg = (ast.Prog) asintCup.parse().value;
+                    ast.SintaxisAbstractaTiny.Prog astProg = (ast.SintaxisAbstractaTiny.Prog) asintCup.parse().value;
                     if (astProg != null) {
                         imprimeProcesamientos(astProg);
                     }
@@ -60,7 +60,7 @@ public class DomJudge {
                 System.out.println("CONSTRUCCION AST ASCENDENTE");
                 AnalizadorLexicoTiny alex = new AnalizadorLexicoTiny(new StringReader(source));
                 asint_cup.AnalizadorSintacticoTinyDJ asintCup = new asint_cup.AnalizadorSintacticoTinyDJ(alex);
-                ast.Prog astProg = (ast.Prog) asintCup.debug_parse().value;
+                ast.SintaxisAbstractaTiny.Prog astProg = (ast.SintaxisAbstractaTiny.Prog) asintCup.debug_parse().value;
                 if (astProg != null) {
                     imprimeProcesamientos(astProg);
                 }
