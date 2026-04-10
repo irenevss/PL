@@ -4,7 +4,7 @@ import java_cup.runtime.*;
 import alex.AnalizadorLexicoTiny;
 import alex.UnidadLexica;
 import errors.GestionErroresTiny;
-import ast.SintaxisAbstractaTiny.*;
+import asint.SintaxisAbstractaTiny.*;
 
 scan with {: 
   return getScanner().next_token(); 
@@ -103,19 +103,18 @@ Instrs_0 ::= LInstr:l {: RESULT = new Si_instr(l); :}
 LInstr ::= LInstr:l1 PUNTO_COMA Instr:i {: RESULT = new Muchas_instr(l1, i); :}
          | Instr:i {: RESULT = new Una_instr(i); :};
 
-LInstr_0 ::= LInstr:l {: RESULT = new Si_instr_l(l); :}
-           | {: RESULT = new No_instr_l(); :};
+// LInstr_0 removed
 
 Instr ::= E:e1 ASIGNACION E:e2 {: RESULT = new Instr_asig(e1, e2); :}
-        | IF E:e DOS_PUNTOS LInstr_0:l END_IF {: RESULT = new Instr_if(e, l); :}
-        | IF E:e DOS_PUNTOS LInstr_0:l1 ELSE LInstr_0:l2 END_IF {: RESULT = new Instr_ifelse(e, l1, l2); :}
-        | WHILE E:e DOS_PUNTOS LInstr_0:l END_WHILE {: RESULT = new Instr_while(e, l); :}
+        | IF E:e DOS_PUNTOS Instrs_0:l END_IF {: RESULT = new Instr_if(e, l); :}
+        | IF E:e DOS_PUNTOS Instrs_0:l1 ELSE Instrs_0:l2 END_IF {: RESULT = new Instr_ifelse(e, l1, l2); :}
+        | WHILE E:e DOS_PUNTOS Instrs_0:l END_WHILE {: RESULT = new Instr_while(e, l); :}
         | INPUT E:e {: RESULT = new Instr_lectura(e); :}
         | OUTPUT E:e {: RESULT = new Instr_escritura(e); :}
         | NEW E:e {: RESULT = new Instr_reserva(e); :}
         | DISPOSE E:e {: RESULT = new Instr_liberacion(e); :}
         | ARROBA ID:i PAP ProcActualParams_0:p PCIERRE {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Instr_invocar(ul.lexema(), p, ul.fila(), ul.columna()); :}
-        | BLOCK LDec_0:l LInstr_0:i END_BLOCK {: RESULT = new Instr_compuesta(l, i); :};
+        | BLOCK LDec_0:l Instrs_0:i END_BLOCK {: RESULT = new Instr_compuesta(l, i); :};
 
 ProcActualParams_0 ::= ProcActualParams:p {: RESULT = new Si_exps(p); :}
                      | {: RESULT = new No_exps(); :};

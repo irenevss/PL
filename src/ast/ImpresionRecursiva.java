@@ -1,6 +1,6 @@
 package ast;
 
-import static ast.SintaxisAbstractaTiny.*;
+import static asint.SintaxisAbstractaTiny.*;
 
 public class ImpresionRecursiva extends ProcesamientoDef {
     public String imprime(Prog p) {
@@ -111,12 +111,7 @@ public class ImpresionRecursiva extends ProcesamientoDef {
         return "";
     }
 
-    private String linstr0(LInstr_0 i0) {
-        if (i0 instanceof Si_instr_l) {
-            return linstr(((Si_instr_l) i0).instrs);
-        }
-        return "";
-    }
+    // linstr0 removed
 
     private String linstr(LInstr i) {
         if (i instanceof Una_instr) {
@@ -133,15 +128,15 @@ public class ImpresionRecursiva extends ProcesamientoDef {
         }
         if (i instanceof Instr_if) {
             Instr_if ii = (Instr_if) i;
-            return "<if>\n" + exp(ii.exp) + ":\n" + linstr0(ii.instrs) + "<end_if>\n";
+            return "<if>\n" + exp(ii.exp) + ":\n" + instrs0(ii.instrs) + "<end_if>\n";
         }
         if (i instanceof Instr_ifelse) {
             Instr_ifelse ie = (Instr_ifelse) i;
-            return "<if>\n" + exp(ie.exp) + ":\n" + linstr0(ie.instrs1) + "<else>\n" + linstr0(ie.instrs2) + "<end_if>\n";
+            return "<if>\n" + exp(ie.exp) + ":\n" + instrs0(ie.instrs1) + "<else>\n" + instrs0(ie.instrs2) + "<end_if>\n";
         }
         if (i instanceof Instr_while) {
             Instr_while iw = (Instr_while) i;
-            return "<while>\n" + exp(iw.exp) + ":\n" + linstr0(iw.instrs) + "<end_while>\n";
+            return "<while>\n" + exp(iw.exp) + ":\n" + instrs0(iw.instrs) + "<end_while>\n";
         }
         if (i instanceof Instr_lectura) {
             return "<input>\n" + exp(((Instr_lectura) i).exp);
@@ -160,7 +155,7 @@ public class ImpresionRecursiva extends ProcesamientoDef {
             return "@\n" + iv.id + "$f:" + iv.leeFila() + ",c:" + iv.leeCol() + "$\n(\n" + lexps0(iv.exps) + ")\n";
         }
         Instr_compuesta ic = (Instr_compuesta) i;
-        return "<block>\n" + ldec0(ic.decs) + linstr0(ic.instrs) + "<end_block>\n";
+        return "<block>\n" + ldec0(ic.decs) + instrs0(ic.instrs) + "<end_block>\n";
     }
 
     private String lexps0(LExps_0 e0) {

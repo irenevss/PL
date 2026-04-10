@@ -1,6 +1,6 @@
 package ast;
 
-import static ast.SintaxisAbstractaTiny.*;
+import static asint.SintaxisAbstractaTiny.*;
 
 public class ImpresionVisitante extends ProcesamientoDef {
     private final StringBuilder out = new StringBuilder();
@@ -83,14 +83,7 @@ public class ImpresionVisitante extends ProcesamientoDef {
     public void process(No_instr ld) {
     }
 
-    @Override
-    public void process(Si_instr_l ld) {
-        ld.instrs.process(this);
-    }
-
-    @Override
-    public void process(No_instr_l ld) {
-    }
+    // Removed Si_instr_l/No_instr_l
 
     @Override
     public void process(Muchas_instr ld) {

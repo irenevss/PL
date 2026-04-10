@@ -1,6 +1,6 @@
 package ast;
 
-import static ast.SintaxisAbstractaTiny.*;
+import static asint.SintaxisAbstractaTiny.*;
 
 public interface Procesamiento {
     void process(Si_dec ld);
@@ -9,8 +9,7 @@ public interface Procesamiento {
     void process(Una_dec ld);
     void process(Si_instr ld);
     void process(No_instr ld);
-    void process(Si_instr_l ld);
-    void process(No_instr_l ld);
+    // Removed LInstr_0 methods
     void process(Muchas_instr ld);
     void process(Una_instr ld);
     void process(Si_procparam ld);

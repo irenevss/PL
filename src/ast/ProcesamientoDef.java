@@ -1,6 +1,6 @@
 package ast;
 
-import static ast.SintaxisAbstractaTiny.*;
+import static asint.SintaxisAbstractaTiny.*;
 
 public class ProcesamientoDef implements Procesamiento {
     public void process(Si_dec ld) {}
@@ -9,8 +9,7 @@ public class ProcesamientoDef implements Procesamiento {
     public void process(Una_dec ld) {}
     public void process(Si_instr ld) {}
     public void process(No_instr ld) {}
-    public void process(Si_instr_l ld) {}
-    public void process(No_instr_l ld) {}
+    // Removed LInstr_0 methods
     public void process(Muchas_instr ld) {}
     public void process(Una_instr ld) {}
     public void process(Si_procparam ld) {}

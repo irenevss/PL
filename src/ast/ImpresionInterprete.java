@@ -1,6 +1,6 @@
 package ast;
 
-import static ast.SintaxisAbstractaTiny.*;
+import static asint.SintaxisAbstractaTiny.*;
 
 public class ImpresionInterprete extends ProcesamientoDef {
     public String imprime(Prog p) {

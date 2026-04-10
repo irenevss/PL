@@ -10,7 +10,7 @@ import asint.ClaseSemanticaTiny;
 import asint.SintaxisAbstractaTiny.Prog;
 import asint.SintaxisAbstractaTiny.LDec_0;
 import asint.SintaxisAbstractaTiny.Instrs_0;
-import asint.SintaxisAbstractaTiny.LInstr_0;
+import asint.SintaxisAbstractaTiny.Instrs_0;
 import asint.SintaxisAbstractaTiny.LDec;
 import asint.SintaxisAbstractaTiny.Dec;
 import asint.SintaxisAbstractaTiny.Tipo;
@@ -327,7 +327,7 @@ Instrs_0 Instrs_0() :
       { return sem.no_instr(); }
 }
 
-LInstr_0 LInstr_0() :
+Instrs_0 LInstr_0() :
 {
    LInstr l;
 }
@@ -396,7 +396,7 @@ Instr InstrAsig() :
 Instr InstrIfOrIfElse() :
 {
    Exp e;
-   LInstr_0 li1, li2;
+   Instrs_0 li1, li2;
 }
 {
    <IF> e=E0() <DOS_PUNTOS> li1=LInstr_0()
@@ -412,7 +412,7 @@ Instr InstrIfOrIfElse() :
 Instr InstrWhile() :
 {
    Exp e;
-   LInstr_0 li;
+   Instrs_0 li;
 }
 {
    <WHILE> e=E0() <DOS_PUNTOS> li=LInstr_0() <END_WHILE>
