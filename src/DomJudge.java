@@ -4,7 +4,7 @@ import java.io.StringReader;
 import impresion.ImpresionInterprete;
 import impresion.ImpresionRecursiva;
 import impresion.ImpresionVisitante;
-import alex.AnalizadorLexicoTiny;
+import c_ast_ascendente.AnalizadorLexicoTiny;
 import c_ast_descendente.ConstructorASTsTinyDJ;
 import asint.SintaxisAbstractaTiny;
 import errors.GestionErroresTiny.ErrorLexico;
@@ -54,22 +54,24 @@ public class DomJudge {
             } else if (selector == 'a') {
                 System.out.println("CONSTRUCCION AST ASCENDENTE");
                 AnalizadorLexicoTiny alex = new AnalizadorLexicoTiny(new StringReader(source));
-                c_ast_ascendente.AnalizadorSintacticoTinyDJ asintCup = new c_ast_ascendente.AnalizadorSintacticoTinyDJ(alex);
-                asint.SintaxisAbstractaTiny.Prog astProg = (asint.SintaxisAbstractaTiny.Prog) asintCup.debug_parse().value;
+                c_ast_ascendente.AnalizadorSintacticoTinyDJ asintCup = new c_ast_ascendente.AnalizadorSintacticoTinyDJ(
+                        alex);
+                asint.SintaxisAbstractaTiny.Prog astProg = (asint.SintaxisAbstractaTiny.Prog) asintCup
+                        .debug_parse().value;
                 if (astProg != null) {
                     imprimeProcesamientos(astProg);
                 }
             }
         } catch (TokenMgrError e) {
-             System.out.println("ERROR_LEXICO");
+            System.out.println("ERROR_LEXICO");
         } catch (ParseException e) {
-             System.out.println("ERROR_SINTACTICO");
+            System.out.println("ERROR_SINTACTICO");
         } catch (ErrorLexico e) {
-             System.out.println("ERROR_LEXICO");
+            System.out.println("ERROR_LEXICO");
         } catch (ErrorSintactico e) {
-             System.out.println("ERROR_SINTACTICO");
+            System.out.println("ERROR_SINTACTICO");
         } catch (Exception e) {
-             System.out.println("ERROR_SINTACTICO");
+            System.out.println("ERROR_SINTACTICO");
         }
     }
 }

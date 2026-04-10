@@ -1,6 +1,4 @@
-package alex;
-
-import c_ast_ascendente.ClaseLexica;
+package c_ast_ascendente;
 
 public class ALexOperations {
 

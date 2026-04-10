@@ -2,7 +2,6 @@ package c_ast_ascendente;
 
 import java_cup.runtime.Symbol;
 import java_cup.runtime.Scanner;
-import alex.UnidadLexica;
 
 public class AnalizadorSintacticoTinyDJ extends AnalizadorSintacticoTiny {
     public AnalizadorSintacticoTinyDJ(Scanner s) {

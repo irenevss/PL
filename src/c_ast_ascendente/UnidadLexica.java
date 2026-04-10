@@ -1,4 +1,4 @@
-package alex;
+package c_ast_ascendente;
 
 import java_cup.runtime.Symbol;
 

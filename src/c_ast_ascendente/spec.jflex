@@ -1,6 +1,5 @@
-package alex;
+package c_ast_ascendente;
 
-import c_ast_ascendente.ClaseLexica;
 import errors.GestionErroresTiny;
 
 %%

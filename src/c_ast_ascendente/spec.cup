@@ -1,8 +1,6 @@
 package c_ast_ascendente;
 
 import java_cup.runtime.*;
-import alex.AnalizadorLexicoTiny;
-import alex.UnidadLexica;
 import errors.GestionErroresTiny;
 import asint.SintaxisAbstractaTiny.*;
 

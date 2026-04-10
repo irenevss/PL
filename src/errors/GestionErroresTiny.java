@@ -1,6 +1,6 @@
 package errors;
 
-import alex.UnidadLexica;
+import c_ast_ascendente.UnidadLexica;
 
 public class GestionErroresTiny {
     public class ErrorLexico extends RuntimeException {

@@ -27,14 +27,14 @@ if errorlevel 1 (
 )
 
 echo --- Generating Lexer (JFlex) ---
-java -jar jflex.jar -d %SRC%/alex %SRC%/alex/spec.jflex
+java -jar jflex.jar -d %SRC%/c_ast_ascendente %SRC%/c_ast_ascendente/spec.jflex
 if errorlevel 1 (
     echo JFlex generation failed!
     exit /b 1
 )
 
 echo --- Compiling Components ---
-javac -g -d %BIN% -cp "%CP%" %SRC%/asint/*.java %SRC%/impresion/*.java %SRC%/alex/*.java %SRC%/c_ast_descendente/*.java %SRC%/c_ast_ascendente/*.java %SRC%/errors/*.java %SRC%/DomJudge.java
+javac -g -d %BIN% -cp "%CP%" %SRC%/asint/*.java %SRC%/impresion/*.java %SRC%/c_ast_descendente/*.java %SRC%/c_ast_ascendente/*.java %SRC%/errors/*.java %SRC%/DomJudge.java
 if errorlevel 1 (
     echo AST Compilation failed!
     exit /b 1
