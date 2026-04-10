@@ -34,7 +34,7 @@ if errorlevel 1 (
 )
 
 echo --- Compiling Components ---
-javac -g -d %BIN% -cp "%CP%" %SRC%/asint/*.java %SRC%/impresion/*.java %SRC%/c_ast_descendente/*.java %SRC%/c_ast_ascendente/*.java %SRC%/errors/*.java %SRC%/DomJudge.java
+javac -encoding UTF-8 -g -d %BIN% -cp "%CP%" %SRC%/asint/*.java %SRC%/impresion/*.java %SRC%/c_ast_descendente/*.java %SRC%/c_ast_ascendente/*.java %SRC%/errors/*.java %SRC%/DomJudge.java
 if errorlevel 1 (
     echo AST Compilation failed!
     exit /b 1
@@ -58,7 +58,7 @@ for %%i in (casos\*.in) do (
         if exist "!diffFile!" del "!diffFile!"
 
         REM Run the test
-        type "!inputFile!" | java -cp "%CP%" DomJudge > "%ACTUAL%" 2>&1
+        java -Dfile.encoding=UTF-8 -cp "%CP%" DomJudge < "!inputFile!" > "%ACTUAL%" 2>&1
 
         if errorlevel 1 (
             echo FAIL: !file! ^(Crash or non-zero exit code^)
@@ -81,6 +81,6 @@ echo.
 echo Summary: %passed% / %total% tests passed.
 
 :: Clean up
-REM if exist "%ACTUAL%" del "%ACTUAL%"
+if exist "%ACTUAL%" del "%ACTUAL%"
 
 endlocal

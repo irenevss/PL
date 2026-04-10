@@ -37,7 +37,8 @@ public class DomJudge {
     }
 
     public static void main(String[] args) throws Exception {
-        Reader input = new InputStreamReader(System.in);
+        System.setOut(new java.io.PrintStream(System.out, true, "UTF-8"));
+        Reader input = new InputStreamReader(System.in, "UTF-8");
         int selector = input.read();
         String source = readRemaining(input);
 

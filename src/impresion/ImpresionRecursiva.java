@@ -10,7 +10,8 @@ public class ImpresionRecursiva extends ProcesamientoDef {
     }
 
     private String prog(Prog p) {
-        return "<program>\n" + (p.decs != null ? ldec0(p.decs) : "") + (p.instrs != null ? instrs0(p.instrs) : "") + "<end_program>\n";
+        return "<program>\n" + (p.decs != null ? ldec0(p.decs) : "") + (p.instrs != null ? instrs0(p.instrs) : "")
+                + "<end_program>\n";
     }
 
     private String ldec0(LDec_0 d) {
@@ -38,7 +39,8 @@ public class ImpresionRecursiva extends ProcesamientoDef {
             return "<dectype>\n" + dt.id + "$f:" + dt.leeFila() + ",c:" + dt.leeCol() + "$\n:\n" + tipo(dt.tipo);
         }
         Dec_proc dp = (Dec_proc) d;
-        return "<decproc>\n" + dp.id + "$f:" + dp.leeFila() + ",c:" + dp.leeCol() + "$\n(\n" + lprocparams0(dp.params) + ")\n"
+        return "<decproc>\n" + dp.id + "$f:" + dp.leeFila() + ",c:" + dp.leeCol() + "$\n(\n" + lprocparams0(dp.params)
+                + ")\n"
                 + ldec0(dp.decs) + instrs0(dp.instrs) + "<end_proc>\n";
     }
 
@@ -61,7 +63,8 @@ public class ImpresionRecursiva extends ProcesamientoDef {
         }
         if (t instanceof Tipo_array) {
             Tipo_array ta = (Tipo_array) t;
-            return "<array>\n[\n" + ta.dim + "\n]$f:" + ta.leeFila() + ",c:" + ta.leeCol() + "$\n<of>\n" + tipo(ta.tipo);
+            return "<array>\n[\n" + ta.dim + "\n]$f:" + ta.leeFila() + ",c:" + ta.leeCol() + "$\n<of>\n"
+                    + tipo(ta.tipo);
         }
         if (t instanceof Tipo_pointer) {
             return "<pointer>\n" + tipo(((Tipo_pointer) t).tipo);
@@ -113,8 +116,6 @@ public class ImpresionRecursiva extends ProcesamientoDef {
         return "";
     }
 
-    // linstr0 removed
-
     private String linstr(LInstr i) {
         if (i instanceof Una_instr) {
             return instr(((Una_instr) i).instr);
@@ -134,7 +135,8 @@ public class ImpresionRecursiva extends ProcesamientoDef {
         }
         if (i instanceof Instr_ifelse) {
             Instr_ifelse ie = (Instr_ifelse) i;
-            return "<if>\n" + exp(ie.exp) + ":\n" + instrs0(ie.instrs1) + "<else>\n" + instrs0(ie.instrs2) + "<end_if>\n";
+            return "<if>\n" + exp(ie.exp) + ":\n" + instrs0(ie.instrs1) + "<else>\n" + instrs0(ie.instrs2)
+                    + "<end_if>\n";
         }
         if (i instanceof Instr_while) {
             Instr_while iw = (Instr_while) i;
@@ -178,55 +180,68 @@ public class ImpresionRecursiva extends ProcesamientoDef {
     private String exp(Exp e) {
         if (e instanceof Exp_suma) {
             Exp_suma x = (Exp_suma) e;
-            return imprimeOpnd(x.opnd0, 1, false) + "+$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n" + imprimeOpnd(x.opnd1, 1, true);
+            return imprimeOpnd(x.opnd0, 1, false) + "+$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n"
+                    + imprimeOpnd(x.opnd1, 1, true);
         }
         if (e instanceof Exp_resta) {
             Exp_resta x = (Exp_resta) e;
-            return imprimeOpnd(x.opnd0, 1, false) + "-$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n" + imprimeOpnd(x.opnd1, 1, true);
+            return imprimeOpnd(x.opnd0, 1, false) + "-$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n"
+                    + imprimeOpnd(x.opnd1, 1, true);
         }
         if (e instanceof Exp_mul) {
             Exp_mul x = (Exp_mul) e;
-            return imprimeOpnd(x.opnd0, 3, false) + "*$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n" + imprimeOpnd(x.opnd1, 3, true);
+            return imprimeOpnd(x.opnd0, 3, false) + "*$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n"
+                    + imprimeOpnd(x.opnd1, 3, true);
         }
         if (e instanceof Exp_div) {
             Exp_div x = (Exp_div) e;
-            return imprimeOpnd(x.opnd0, 3, false) + "/$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n" + imprimeOpnd(x.opnd1, 3, true);
+            return imprimeOpnd(x.opnd0, 3, false) + "/$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n"
+                    + imprimeOpnd(x.opnd1, 3, true);
         }
         if (e instanceof Exp_mod) {
             Exp_mod x = (Exp_mod) e;
-            return imprimeOpnd(x.opnd0, 3, false) + "%$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n" + imprimeOpnd(x.opnd1, 3, true);
+            return imprimeOpnd(x.opnd0, 3, false) + "%$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n"
+                    + imprimeOpnd(x.opnd1, 3, true);
         }
         if (e instanceof Exp_and) {
             Exp_and x = (Exp_and) e;
-            return imprimeOpnd(x.opnd0, 4, false) + "&$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n" + imprimeOpnd(x.opnd1, 4, true);
+            return imprimeOpnd(x.opnd0, 4, false) + "&$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n"
+                    + imprimeOpnd(x.opnd1, 4, true);
         }
         if (e instanceof Exp_or) {
             Exp_or x = (Exp_or) e;
-            return imprimeOpnd(x.opnd0, 2, false) + "|$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n" + imprimeOpnd(x.opnd1, 2, true);
+            return imprimeOpnd(x.opnd0, 2, false) + "|$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n"
+                    + imprimeOpnd(x.opnd1, 2, true);
         }
         if (e instanceof Exp_menor) {
             Exp_menor x = (Exp_menor) e;
-            return imprimeOpnd(x.opnd0, 0, false) + "<$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n" + imprimeOpnd(x.opnd1, 0, true);
+            return imprimeOpnd(x.opnd0, 0, false) + "<$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n"
+                    + imprimeOpnd(x.opnd1, 0, true);
         }
         if (e instanceof Exp_mayor) {
             Exp_mayor x = (Exp_mayor) e;
-            return imprimeOpnd(x.opnd0, 0, false) + ">$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n" + imprimeOpnd(x.opnd1, 0, true);
+            return imprimeOpnd(x.opnd0, 0, false) + ">$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n"
+                    + imprimeOpnd(x.opnd1, 0, true);
         }
         if (e instanceof Exp_menor_igual) {
             Exp_menor_igual x = (Exp_menor_igual) e;
-            return imprimeOpnd(x.opnd0, 0, false) + "<=$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n" + imprimeOpnd(x.opnd1, 0, true);
+            return imprimeOpnd(x.opnd0, 0, false) + "<=$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n"
+                    + imprimeOpnd(x.opnd1, 0, true);
         }
         if (e instanceof Exp_mayor_igual) {
             Exp_mayor_igual x = (Exp_mayor_igual) e;
-            return imprimeOpnd(x.opnd0, 0, false) + ">=$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n" + imprimeOpnd(x.opnd1, 0, true);
+            return imprimeOpnd(x.opnd0, 0, false) + ">=$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n"
+                    + imprimeOpnd(x.opnd1, 0, true);
         }
         if (e instanceof Exp_igual) {
             Exp_igual x = (Exp_igual) e;
-            return imprimeOpnd(x.opnd0, 0, false) + "=$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n" + imprimeOpnd(x.opnd1, 0, true);
+            return imprimeOpnd(x.opnd0, 0, false) + "=$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n"
+                    + imprimeOpnd(x.opnd1, 0, true);
         }
         if (e instanceof Exp_distinto) {
             Exp_distinto x = (Exp_distinto) e;
-            return imprimeOpnd(x.opnd0, 0, false) + "<>$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n" + imprimeOpnd(x.opnd1, 0, true);
+            return imprimeOpnd(x.opnd0, 0, false) + "<>$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n"
+                    + imprimeOpnd(x.opnd1, 0, true);
         }
         if (e instanceof Exp_menos_unario) {
             Exp_menos_unario x = (Exp_menos_unario) e;
@@ -274,7 +289,8 @@ public class ImpresionRecursiva extends ProcesamientoDef {
         }
         if (e instanceof Exp_array) {
             Exp_array x = (Exp_array) e;
-            return imprimeOpnd(x.opnd0, 6, false) + "[$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n" + exp(x.opnd1) + "]\n";
+            return imprimeOpnd(x.opnd0, 6, false) + "[$f:" + x.leeFila() + ",c:" + x.leeCol() + "$\n" + exp(x.opnd1)
+                    + "]\n";
         }
         return "";
     }
@@ -282,21 +298,15 @@ public class ImpresionRecursiva extends ProcesamientoDef {
     private String imprimeOpnd(Exp opnd, int minPrior, boolean isRight) {
         int priorOpnd = opnd.prioridad();
         boolean needsParens = false;
-
         if (priorOpnd < minPrior) {
             needsParens = true;
         } else if (priorOpnd == minPrior) {
-            if (isRight) {
-                if (minPrior <= 4) {
-                    needsParens = true;
-                }
-            } else {
-                if (minPrior == 0 || minPrior == 2) {
-                    needsParens = true;
-                }
+            if (isRight && !opnd.es_asociativa_derecha()) {
+                needsParens = true;
+            } else if (!isRight && !opnd.es_asociativa_izquierda()) {
+                needsParens = true;
             }
         }
-
         if (needsParens) {
             return "(\n" + exp(opnd) + ")\n";
         }

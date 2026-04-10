@@ -705,10 +705,10 @@ Exp E6() :
       { return (Exp)sem.lit_real(t.image).ponFila(t.beginLine).ponCol(t.beginColumn); }
 |
    t=<TRUE>
-      { return (Exp)sem.lit_bool("true").ponFila(t.beginLine).ponCol(t.beginColumn); }
+      { return (Exp)sem.lit_bool("<" + t.image + ">").ponFila(t.beginLine).ponCol(t.beginColumn); }
 |
    t=<FALSE>
-      { return (Exp)sem.lit_bool("false").ponFila(t.beginLine).ponCol(t.beginColumn); }
+      { return (Exp)sem.lit_bool("<" + t.image + ">").ponFila(t.beginLine).ponCol(t.beginColumn); }
 |
    t=<CADENA_LITERAL>
       { return (Exp)sem.lit_string(t.image).ponFila(t.beginLine).ponCol(t.beginColumn); }

@@ -46,7 +46,6 @@ non terminal LProcParams_0 ProcParams_0;
 non terminal LProcParams ProcParams;
 non terminal Param Param;
 non terminal LInstr LInstr;
-non terminal LInstr_0 LInstr_0;
 non terminal Instr Instr;
 non terminal LExps_0 ProcActualParams_0;
 non terminal LExps ProcActualParams;
@@ -100,8 +99,6 @@ Instrs_0 ::= LInstr:l {: RESULT = new Si_instr(l); :}
 
 LInstr ::= LInstr:l1 PUNTO_COMA Instr:i {: RESULT = new Muchas_instr(l1, i); :}
          | Instr:i {: RESULT = new Una_instr(i); :};
-
-// LInstr_0 removed
 
 Instr ::= E:e1 ASIGNACION E:e2 {: RESULT = new Instr_asig(e1, e2); :}
         | IF E:e DOS_PUNTOS Instrs_0:l END_IF {: RESULT = new Instr_if(e, l); :}

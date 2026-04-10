@@ -3,73 +3,207 @@ package asint;
 import static asint.SintaxisAbstractaTiny.*;
 
 public class ProcesamientoDef implements Procesamiento {
-    public void process(Si_dec ld) {}
-    public void process(No_dec ld) {}
-    public void process(Muchas_decs ld) {}
-    public void process(Una_dec ld) {}
-    public void process(Si_instr ld) {}
-    public void process(No_instr ld) {}
-    // Removed LInstr_0 methods
-    public void process(Muchas_instr ld) {}
-    public void process(Una_instr ld) {}
-    public void process(Si_procparam ld) {}
-    public void process(No_procparam ld) {}
-    public void process(Muchos_procparam ld) {}
-    public void process(Un_procparam ld) {}
-    public void process(Si_exps ld) {}
-    public void process(No_exps ld) {}
-    public void process(Muchas_exps ld) {}
-    public void process(Una_exp ld) {}
-    public void process(Muchos_camposrecord ld) {}
-    public void process(Un_camporecord ld) {}
-    public void process(Dec_var d) {}
-    public void process(Dec_tipo d) {}
-    public void process(Dec_proc d) {}
-    public void process(Instr_asig i) {}
-    public void process(Instr_if i) {}
-    public void process(Instr_ifelse i) {}
-    public void process(Instr_while i) {}
-    public void process(Instr_lectura i) {}
-    public void process(Instr_escritura i) {}
-    public void process(Instr_reserva i) {}
-    public void process(Instr_liberacion i) {}
-    public void process(Instr_invocar i) {}
-    public void process(Instr_compuesta i) {}
-    public void process(Exp_suma e) {}
-    public void process(Exp_resta e) {}
-    public void process(Exp_mul e) {}
-    public void process(Exp_div e) {}
-    public void process(Exp_mod e) {}
-    public void process(Exp_and e) {}
-    public void process(Exp_or e) {}
-    public void process(Exp_mayor e) {}
-    public void process(Exp_menor e) {}
-    public void process(Exp_mayor_igual e) {}
-    public void process(Exp_menor_igual e) {}
-    public void process(Exp_igual e) {}
-    public void process(Exp_distinto e) {}
-    public void process(Exp_menos_unario e) {}
-    public void process(Exp_not e) {}
-    public void process(Exp_asterisco_unario e) {}
-    public void process(Iden e) {}
-    public void process(Lit_int e) {}
-    public void process(Lit_real e) {}
-    public void process(Lit_bool e) {}
-    public void process(Lit_string e) {}
-    public void process(Exp_null e) {}
-    public void process(Exp_campo e) {}
-    public void process(Exp_flecha e) {}
-    public void process(Exp_array e) {}
-    public void process(Tipo_int t) {}
-    public void process(Tipo_real t) {}
-    public void process(Tipo_bool t) {}
-    public void process(Tipo_string t) {}
-    public void process(Tipo_id t) {}
-    public void process(Tipo_array t) {}
-    public void process(Tipo_pointer t) {}
-    public void process(Tipo_record t) {}
-    public void process(Param_ref p) {}
-    public void process(Param_val p) {}
-    public void process(Prog p) {}
-    public void process(CamposRecord cr) {}
+    public void process(Si_dec ld) {
+    }
+
+    public void process(No_dec ld) {
+    }
+
+    public void process(Muchas_decs ld) {
+    }
+
+    public void process(Una_dec ld) {
+    }
+
+    public void process(Si_instr ld) {
+    }
+
+    public void process(No_instr ld) {
+    }
+
+    public void process(Muchas_instr ld) {
+    }
+
+    public void process(Una_instr ld) {
+    }
+
+    public void process(Si_procparam ld) {
+    }
+
+    public void process(No_procparam ld) {
+    }
+
+    public void process(Muchos_procparam ld) {
+    }
+
+    public void process(Un_procparam ld) {
+    }
+
+    public void process(Si_exps ld) {
+    }
+
+    public void process(No_exps ld) {
+    }
+
+    public void process(Muchas_exps ld) {
+    }
+
+    public void process(Una_exp ld) {
+    }
+
+    public void process(Muchos_camposrecord ld) {
+    }
+
+    public void process(Un_camporecord ld) {
+    }
+
+    public void process(Dec_var d) {
+    }
+
+    public void process(Dec_tipo d) {
+    }
+
+    public void process(Dec_proc d) {
+    }
+
+    public void process(Instr_asig i) {
+    }
+
+    public void process(Instr_if i) {
+    }
+
+    public void process(Instr_ifelse i) {
+    }
+
+    public void process(Instr_while i) {
+    }
+
+    public void process(Instr_lectura i) {
+    }
+
+    public void process(Instr_escritura i) {
+    }
+
+    public void process(Instr_reserva i) {
+    }
+
+    public void process(Instr_liberacion i) {
+    }
+
+    public void process(Instr_invocar i) {
+    }
+
+    public void process(Instr_compuesta i) {
+    }
+
+    public void process(Exp_suma e) {
+    }
+
+    public void process(Exp_resta e) {
+    }
+
+    public void process(Exp_mul e) {
+    }
+
+    public void process(Exp_div e) {
+    }
+
+    public void process(Exp_mod e) {
+    }
+
+    public void process(Exp_and e) {
+    }
+
+    public void process(Exp_or e) {
+    }
+
+    public void process(Exp_mayor e) {
+    }
+
+    public void process(Exp_menor e) {
+    }
+
+    public void process(Exp_mayor_igual e) {
+    }
+
+    public void process(Exp_menor_igual e) {
+    }
+
+    public void process(Exp_igual e) {
+    }
+
+    public void process(Exp_distinto e) {
+    }
+
+    public void process(Exp_menos_unario e) {
+    }
+
+    public void process(Exp_not e) {
+    }
+
+    public void process(Exp_asterisco_unario e) {
+    }
+
+    public void process(Iden e) {
+    }
+
+    public void process(Lit_int e) {
+    }
+
+    public void process(Lit_real e) {
+    }
+
+    public void process(Lit_bool e) {
+    }
+
+    public void process(Lit_string e) {
+    }
+
+    public void process(Exp_null e) {
+    }
+
+    public void process(Exp_campo e) {
+    }
+
+    public void process(Exp_flecha e) {
+    }
+
+    public void process(Exp_array e) {
+    }
+
+    public void process(Tipo_int t) {
+    }
+
+    public void process(Tipo_real t) {
+    }
+
+    public void process(Tipo_bool t) {
+    }
+
+    public void process(Tipo_string t) {
+    }
+
+    public void process(Tipo_id t) {
+    }
+
+    public void process(Tipo_array t) {
+    }
+
+    public void process(Tipo_pointer t) {
+    }
+
+    public void process(Tipo_record t) {
+    }
+
+    public void process(Param_ref p) {
+    }
+
+    public void process(Param_val p) {
+    }
+
+    public void process(Prog p) {
+    }
+
+    public void process(CamposRecord cr) {
+    }
 }

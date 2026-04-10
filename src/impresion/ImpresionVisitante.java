@@ -18,18 +18,13 @@ public class ImpresionVisitante extends ProcesamientoDef {
     private void imprimeOpnd(Exp opnd, int minPrior, boolean isRight) {
         int priorOpnd = opnd.prioridad();
         boolean needsParens = false;
-
         if (priorOpnd < minPrior) {
             needsParens = true;
         } else if (priorOpnd == minPrior) {
-            if (isRight) {
-                if (minPrior <= 4) {
-                    needsParens = true;
-                }
-            } else {
-                if (minPrior == 0 || minPrior == 2) {
-                    needsParens = true;
-                }
+            if (isRight && !opnd.es_asociativa_derecha()) {
+                needsParens = true;
+            } else if (!isRight && !opnd.es_asociativa_izquierda()) {
+                needsParens = true;
             }
         }
 
@@ -84,8 +79,6 @@ public class ImpresionVisitante extends ProcesamientoDef {
     @Override
     public void process(No_instr ld) {
     }
-
-    // Removed Si_instr_l/No_instr_l
 
     @Override
     public void process(Muchas_instr ld) {
@@ -260,72 +253,84 @@ public class ImpresionVisitante extends ProcesamientoDef {
         out.append("+$f:").append(e.leeFila()).append(",c:").append(e.leeCol()).append("$\n");
         imprimeOpnd(e.opnd1, 1, true);
     }
+
     @Override
     public void process(Exp_resta e) {
         imprimeOpnd(e.opnd0, 1, false);
         out.append("-$f:").append(e.leeFila()).append(",c:").append(e.leeCol()).append("$\n");
         imprimeOpnd(e.opnd1, 1, true);
     }
+
     @Override
     public void process(Exp_mul e) {
         imprimeOpnd(e.opnd0, 3, false);
         out.append("*$f:").append(e.leeFila()).append(",c:").append(e.leeCol()).append("$\n");
         imprimeOpnd(e.opnd1, 3, true);
     }
+
     @Override
     public void process(Exp_div e) {
         imprimeOpnd(e.opnd0, 3, false);
         out.append("/$f:").append(e.leeFila()).append(",c:").append(e.leeCol()).append("$\n");
         imprimeOpnd(e.opnd1, 3, true);
     }
+
     @Override
     public void process(Exp_mod e) {
         imprimeOpnd(e.opnd0, 3, false);
         out.append("%$f:").append(e.leeFila()).append(",c:").append(e.leeCol()).append("$\n");
         imprimeOpnd(e.opnd1, 3, true);
     }
+
     @Override
     public void process(Exp_and e) {
         imprimeOpnd(e.opnd0, 4, false);
         out.append("&$f:").append(e.leeFila()).append(",c:").append(e.leeCol()).append("$\n");
         imprimeOpnd(e.opnd1, 4, true);
     }
+
     @Override
     public void process(Exp_or e) {
         imprimeOpnd(e.opnd0, 2, false);
         out.append("|$f:").append(e.leeFila()).append(",c:").append(e.leeCol()).append("$\n");
         imprimeOpnd(e.opnd1, 2, true);
     }
+
     @Override
     public void process(Exp_mayor e) {
         imprimeOpnd(e.opnd0, 0, false);
         out.append(">$f:").append(e.leeFila()).append(",c:").append(e.leeCol()).append("$\n");
         imprimeOpnd(e.opnd1, 0, true);
     }
+
     @Override
     public void process(Exp_menor e) {
         imprimeOpnd(e.opnd0, 0, false);
         out.append("<$f:").append(e.leeFila()).append(",c:").append(e.leeCol()).append("$\n");
         imprimeOpnd(e.opnd1, 0, true);
     }
+
     @Override
     public void process(Exp_mayor_igual e) {
         imprimeOpnd(e.opnd0, 0, false);
         out.append(">=$f:").append(e.leeFila()).append(",c:").append(e.leeCol()).append("$\n");
         imprimeOpnd(e.opnd1, 0, true);
     }
+
     @Override
     public void process(Exp_menor_igual e) {
         imprimeOpnd(e.opnd0, 0, false);
         out.append("<=$f:").append(e.leeFila()).append(",c:").append(e.leeCol()).append("$\n");
         imprimeOpnd(e.opnd1, 0, true);
     }
+
     @Override
     public void process(Exp_igual e) {
         imprimeOpnd(e.opnd0, 0, false);
         out.append("=$f:").append(e.leeFila()).append(",c:").append(e.leeCol()).append("$\n");
         imprimeOpnd(e.opnd1, 0, true);
     }
+
     @Override
     public void process(Exp_distinto e) {
         imprimeOpnd(e.opnd0, 0, false);
@@ -338,11 +343,13 @@ public class ImpresionVisitante extends ProcesamientoDef {
         out.append("-$f:").append(e.leeFila()).append(",c:").append(e.leeCol()).append("$\n");
         imprimeOpnd(e.opnd, 5, true);
     }
+
     @Override
     public void process(Exp_not e) {
         out.append("!$f:").append(e.leeFila()).append(",c:").append(e.leeCol()).append("$\n");
         imprimeOpnd(e.opnd, 5, true);
     }
+
     @Override
     public void process(Exp_asterisco_unario e) {
         out.append("*$f:").append(e.leeFila()).append(",c:").append(e.leeCol()).append("$\n");
@@ -388,7 +395,8 @@ public class ImpresionVisitante extends ProcesamientoDef {
     @Override
     public void process(Exp_flecha e) {
         imprimeOpnd(e.base, 6, false);
-        out.append("->\n").append(e.id).append("$f:").append(e.leeFila()).append(",c:").append(e.leeCol()).append("$\n");
+        out.append("->\n").append(e.id).append("$f:").append(e.leeFila()).append(",c:").append(e.leeCol())
+                .append("$\n");
     }
 
     @Override
