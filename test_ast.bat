@@ -13,14 +13,14 @@ if not exist "%BIN%" (
 )
 
 echo --- Generating Parser (JavaCC) ---
-java -cp javacc.jar javacc -OUTPUT_DIRECTORY=%SRC%/asint %SRC%/asint/spec.jj
+java -cp javacc.jar javacc -OUTPUT_DIRECTORY=%SRC%/c_ast_descendente %SRC%/c_ast_descendente/spec.jj
 if errorlevel 1 (
     echo JavaCC generation failed!
     exit /b 1
 )
 
 echo --- Generating Parser (CUP) ---
-java -cp cup.jar java_cup.Main -parser AnalizadorSintacticoTiny -symbols ClaseLexica -nopositions -destdir %SRC%/asint_cup %SRC%/asint_cup/spec.cup
+java -cp cup.jar java_cup.Main -parser AnalizadorSintacticoTiny -symbols ClaseLexica -nopositions -destdir %SRC%/c_ast_ascendente %SRC%/c_ast_ascendente/spec.cup
 if errorlevel 1 (
     echo CUP generation failed!
     exit /b 1
@@ -34,7 +34,7 @@ if errorlevel 1 (
 )
 
 echo --- Compiling Components ---
-javac -g -d %BIN% -cp "%CP%" %SRC%/ast/*.java %SRC%/alex/*.java %SRC%/asint/*.java %SRC%/asint_cup/*.java %SRC%/errors/*.java %SRC%/DomJudge.java
+javac -g -d %BIN% -cp "%CP%" %SRC%/asint/*.java %SRC%/impresion/*.java %SRC%/alex/*.java %SRC%/c_ast_descendente/*.java %SRC%/c_ast_ascendente/*.java %SRC%/errors/*.java %SRC%/DomJudge.java
 if errorlevel 1 (
     echo AST Compilation failed!
     exit /b 1

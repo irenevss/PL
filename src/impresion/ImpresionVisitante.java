@@ -1,4 +1,6 @@
-package ast;
+package impresion;
+
+import asint.*;
 
 import static asint.SintaxisAbstractaTiny.*;
 

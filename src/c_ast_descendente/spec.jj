@@ -4,7 +4,7 @@ options {
 }
 
 PARSER_BEGIN(ConstructorASTsTiny)
-package asint;
+package c_ast_descendente;
 
 import asint.ClaseSemanticaTiny;
 import asint.SintaxisAbstractaTiny.Prog;

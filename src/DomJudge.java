@@ -1,16 +1,16 @@
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
-import ast.ImpresionInterprete;
-import ast.ImpresionRecursiva;
-import ast.ImpresionVisitante;
+import impresion.ImpresionInterprete;
+import impresion.ImpresionRecursiva;
+import impresion.ImpresionVisitante;
 import alex.AnalizadorLexicoTiny;
-import asint.ConstructorASTsTinyDJ;
+import c_ast_descendente.ConstructorASTsTinyDJ;
 import asint.SintaxisAbstractaTiny;
 import errors.GestionErroresTiny.ErrorLexico;
 import errors.GestionErroresTiny.ErrorSintactico;
-import asint.ParseException;
-import asint.TokenMgrError;
+import c_ast_descendente.ParseException;
+import c_ast_descendente.TokenMgrError;
 
 public class DomJudge {
     private static String readRemaining(Reader input) throws Exception {
@@ -48,18 +48,13 @@ public class DomJudge {
                 parser.enable_tracing();
                 SintaxisAbstractaTiny.Prog astJJ = parser.analiza();
                 if (astJJ != null) {
-                    AnalizadorLexicoTiny alex = new AnalizadorLexicoTiny(new StringReader(source));
-                    asint_cup.AnalizadorSintacticoTinyDJ asintCup = new asint_cup.AnalizadorSintacticoTinyDJ(alex);
-                    asint.SintaxisAbstractaTiny.Prog astProg = (asint.SintaxisAbstractaTiny.Prog) asintCup.parse().value;
-                    if (astProg != null) {
-                        imprimeProcesamientos(astProg);
-                    }
+                    imprimeProcesamientos(astJJ);
                 }
 
             } else if (selector == 'a') {
                 System.out.println("CONSTRUCCION AST ASCENDENTE");
                 AnalizadorLexicoTiny alex = new AnalizadorLexicoTiny(new StringReader(source));
-                asint_cup.AnalizadorSintacticoTinyDJ asintCup = new asint_cup.AnalizadorSintacticoTinyDJ(alex);
+                c_ast_ascendente.AnalizadorSintacticoTinyDJ asintCup = new c_ast_ascendente.AnalizadorSintacticoTinyDJ(alex);
                 asint.SintaxisAbstractaTiny.Prog astProg = (asint.SintaxisAbstractaTiny.Prog) asintCup.debug_parse().value;
                 if (astProg != null) {
                     imprimeProcesamientos(astProg);

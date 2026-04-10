@@ -1,4 +1,4 @@
-package ast;
+package asint;
 
 import static asint.SintaxisAbstractaTiny.*;
 

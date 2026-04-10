@@ -1,7 +1,5 @@
 package asint;
 
-import ast.Procesamiento;
-
 public class SintaxisAbstractaTiny {
 
     public static abstract class Nodo {

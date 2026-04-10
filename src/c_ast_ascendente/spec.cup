@@ -1,4 +1,4 @@
-package asint_cup;
+package c_ast_ascendente;
 
 import java_cup.runtime.*;
 import alex.AnalizadorLexicoTiny;
