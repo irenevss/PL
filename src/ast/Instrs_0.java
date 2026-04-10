@@ -1,7 +1,7 @@
 package ast;
 
 public abstract class Instrs_0 {
-    public abstract void accept(Visitor v);
+    
     public abstract String imprime();
     public abstract void process(Procesamiento p);
 
@@ -12,9 +12,7 @@ public abstract class Instrs_0 {
             this.instrs = instrs;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return instrs.imprime();
@@ -28,9 +26,7 @@ public abstract class Instrs_0 {
     public static class No_instr extends Instrs_0 {
         public No_instr() {}
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "";

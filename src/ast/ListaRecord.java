@@ -1,7 +1,7 @@
 package ast;
 
 public abstract class ListaRecord {
-    public abstract void accept(Visitor v);
+    
     public abstract String imprime();
     public abstract void process(Procesamiento p);
 
@@ -14,9 +14,7 @@ public abstract class ListaRecord {
             this.campo = campo;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return lista.imprime() + ";\n" + campo.imprime();
@@ -34,9 +32,7 @@ public abstract class ListaRecord {
             this.campo = campo;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return campo.imprime();

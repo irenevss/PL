@@ -1,6 +1,6 @@
 package ast;
 
-public class ImpresionRecursiva {
+public class ImpresionRecursiva extends ProcesamientoDef {
     public String imprime(Prog p) {
         return prog(p);
     }

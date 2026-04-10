@@ -9,9 +9,7 @@ public class Prog {
         this.instrs = instrs;
     }
 
-    public void accept(Visitor v) {
-        v.visit(this);
-    }
+    
 
     public String imprime() {
         // Implement recursive printing

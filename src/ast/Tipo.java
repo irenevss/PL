@@ -1,16 +1,14 @@
 package ast;
 
 public abstract class Tipo {
-    public abstract void accept(Visitor v);
+    
     public abstract String imprime();
     public abstract void process(Procesamiento p);
 
     public static class Tipo_int extends Tipo {
         public Tipo_int() {}
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "<int>\n";
@@ -24,9 +22,7 @@ public abstract class Tipo {
     public static class Tipo_real extends Tipo {
         public Tipo_real() {}
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "<real>\n";
@@ -40,9 +36,7 @@ public abstract class Tipo {
     public static class Tipo_bool extends Tipo {
         public Tipo_bool() {}
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "<bool>\n";
@@ -56,9 +50,7 @@ public abstract class Tipo {
     public static class Tipo_string extends Tipo {
         public Tipo_string() {}
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "<string>\n";
@@ -79,9 +71,7 @@ public abstract class Tipo {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return id + "$f:" + fila + ",c:" + col + "$\n";
@@ -104,9 +94,7 @@ public abstract class Tipo {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "<array>\n[\n" + dim + "\n]$f:" + fila + ",c:" + col + "$\n<of>\n" + tipo.imprime();
@@ -124,9 +112,7 @@ public abstract class Tipo {
             this.tipo = tipo;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "<pointer>\n" + tipo.imprime();
@@ -144,9 +130,7 @@ public abstract class Tipo {
             this.lista = lista;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "<record>\n" + lista.imprime() + "<end_record>\n";

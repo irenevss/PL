@@ -1,7 +1,7 @@
 package ast;
 
 public abstract class Dec {
-    public abstract void accept(Visitor v);
+    
     public abstract String imprime();
     public abstract void process(Procesamiento p);
 
@@ -17,9 +17,7 @@ public abstract class Dec {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "<decvar>\n" + id + "$f:" + fila + ",c:" + col + "$\n:\n" + tipo.imprime();
@@ -42,9 +40,7 @@ public abstract class Dec {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "<dectype>\n" + id + "$f:" + fila + ",c:" + col + "$\n:\n" + tipo.imprime();
@@ -71,9 +67,7 @@ public abstract class Dec {
             this.instrs = instrs;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "<decproc>\n" + id + "$f:" + fila + ",c:" + col + "$\n(\n" + params.imprime() + ")\n" + decs.imprime() + instrs.imprime() + "<end_proc>\n";

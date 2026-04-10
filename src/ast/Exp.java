@@ -1,7 +1,7 @@
 package ast;
 
 public abstract class Exp {
-    public abstract void accept(Visitor v);
+    
     public abstract String imprime();
     public abstract void process(Procesamiento p);
     public abstract int prioridad();
@@ -43,9 +43,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return imprimeOpnd(opnd0, 1, false) + "+$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 1, true);
@@ -72,9 +70,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return imprimeOpnd(opnd0, 1, false) + "-$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 1, true);
@@ -101,9 +97,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return imprimeOpnd(opnd0, 3, false) + "*$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 3, true);
@@ -130,9 +124,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return imprimeOpnd(opnd0, 3, false) + "/$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 3, true);
@@ -159,9 +151,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return imprimeOpnd(opnd0, 3, false) + "%$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 3, true);
@@ -188,9 +178,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return imprimeOpnd(opnd0, 4, false) + "&$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 4, true);
@@ -217,9 +205,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return imprimeOpnd(opnd0, 2, false) + "|$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 2, true);
@@ -246,9 +232,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return imprimeOpnd(opnd0, 0, false) + "<$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 0, true);
@@ -275,9 +259,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return imprimeOpnd(opnd0, 0, false) + ">$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 0, true);
@@ -304,9 +286,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return imprimeOpnd(opnd0, 0, false) + "<=$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 0, true);
@@ -333,9 +313,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return imprimeOpnd(opnd0, 0, false) + ">=$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 0, true);
@@ -362,9 +340,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return imprimeOpnd(opnd0, 0, false) + "=$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 0, true);
@@ -391,9 +367,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return imprimeOpnd(opnd0, 0, false) + "<>$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd1, 0, true);
@@ -418,9 +392,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "-$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd, 5, true);
@@ -445,9 +417,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "!$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd, 5, true);
@@ -472,9 +442,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "*$f:" + fila + ",c:" + col + "$\n" + imprimeOpnd(opnd, 7, true);
@@ -499,9 +467,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return id + "$f:" + fila + ",c:" + col + "$\n";
@@ -526,9 +492,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return val + "$f:" + fila + ",c:" + col + "$\n";
@@ -553,9 +517,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return val + "$f:" + fila + ",c:" + col + "$\n";
@@ -580,9 +542,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return val + "$f:" + fila + ",c:" + col + "$\n";
@@ -607,9 +567,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return val + "$f:" + fila + ",c:" + col + "$\n";
@@ -632,9 +590,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "<null>$f:" + fila + ",c:" + col + "$\n";
@@ -661,9 +617,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return imprimeOpnd(base, 6, false) + ".\n" + id + "$f:" + fila + ",c:" + col + "$\n";
@@ -690,9 +644,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return imprimeOpnd(base, 6, false) + "->\n" + id + "$f:" + fila + ",c:" + col + "$\n";
@@ -719,9 +671,7 @@ public abstract class Exp {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return imprimeOpnd(opnd0, 6, false) + "[$f:" + fila + ",c:" + col + "$\n" + opnd1.imprime() + "]\n";

@@ -1,7 +1,7 @@
 package ast;
 
 public abstract class LInstr {
-    public abstract void accept(Visitor v);
+    
     public abstract String imprime();
     public abstract void process(Procesamiento p);
 
@@ -14,9 +14,7 @@ public abstract class LInstr {
             this.instr = instr;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return instrs.imprime() + ";\n" + instr.imprime();
@@ -34,9 +32,7 @@ public abstract class LInstr {
             this.instr = instr;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return instr.imprime();

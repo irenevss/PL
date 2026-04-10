@@ -1,7 +1,7 @@
 package ast;
 
 public abstract class Instr {
-    public abstract void accept(Visitor v);
+    
     public abstract String imprime();
     public abstract void process(Procesamiento p);
 
@@ -14,9 +14,7 @@ public abstract class Instr {
             this.exp2 = exp2;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return exp1.imprime() + ":=\n" + exp2.imprime();
@@ -36,9 +34,7 @@ public abstract class Instr {
             this.instrs = instrs;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "<if>\n" + exp.imprime() + ":\n" + instrs.imprime() + "<end_if>\n";
@@ -60,9 +56,7 @@ public abstract class Instr {
             this.instrs2 = instrs2;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "<if>\n" + exp.imprime() + ":\n" + instrs1.imprime() + "<else>\n" + instrs2.imprime() + "<end_if>\n";
@@ -82,9 +76,7 @@ public abstract class Instr {
             this.instrs = instrs;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "<while>\n" + exp.imprime() + ":\n" + instrs.imprime() + "<end_while>\n";
@@ -102,9 +94,7 @@ public abstract class Instr {
             this.exp = exp;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "<input>\n" + exp.imprime();
@@ -122,9 +112,7 @@ public abstract class Instr {
             this.exp = exp;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "<output>\n" + exp.imprime();
@@ -142,9 +130,7 @@ public abstract class Instr {
             this.exp = exp;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "<new>\n" + exp.imprime();
@@ -162,9 +148,7 @@ public abstract class Instr {
             this.exp = exp;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "<dispose>\n" + exp.imprime();
@@ -184,9 +168,7 @@ public abstract class Instr {
             this.instrs = instrs;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "<block>\n" + decs.imprime() + instrs.imprime() + "<end_block>\n";
@@ -209,9 +191,7 @@ public abstract class Instr {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "@\n" + id + "$f:" + fila + ",c:" + col + "$\n(\n" + exps.imprime() + ")\n";

@@ -1,7 +1,7 @@
 package ast;
 
 public abstract class LExps_0 {
-    public abstract void accept(Visitor v);
+    
     public abstract String imprime();
     public abstract void process(Procesamiento p);
 
@@ -12,9 +12,7 @@ public abstract class LExps_0 {
             this.exps = exps;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return exps.imprime();
@@ -28,9 +26,7 @@ public abstract class LExps_0 {
     public static class No_exps extends LExps_0 {
         public No_exps() {}
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "";

@@ -1,7 +1,7 @@
 package ast;
 
 public abstract class LProcParams_0 {
-    public abstract void accept(Visitor v);
+    
     public abstract String imprime();
     public abstract void process(Procesamiento p);
 
@@ -12,9 +12,7 @@ public abstract class LProcParams_0 {
             this.params = params;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return params.imprime();
@@ -28,9 +26,7 @@ public abstract class LProcParams_0 {
     public static class No_procparam extends LProcParams_0 {
         public No_procparam() {}
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "";

@@ -1,7 +1,7 @@
 package ast;
 
 public abstract class Param {
-    public abstract void accept(Visitor v);
+    
     public abstract String imprime();
     public abstract void process(Procesamiento p);
 
@@ -17,9 +17,7 @@ public abstract class Param {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return "<ref>\n" + id + "$f:" + fila + ",c:" + col + "$\n:\n" + tipo.imprime();
@@ -42,9 +40,7 @@ public abstract class Param {
             this.col = col;
         }
 
-        public void accept(Visitor v) {
-            v.visit(this);
-        }
+        
 
         public String imprime() {
             return id + "$f:" + fila + ",c:" + col + "$\n:\n" + tipo.imprime();

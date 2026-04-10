@@ -12,9 +12,7 @@ public class CamposRecord {
         this.col = col;
     }
 
-    public void accept(Visitor v) {
-        v.visit(this);
-    }
+    
 
     public String imprime() {
         return id + "$f:" + fila + ",c:" + col + "$\n:\n" + tipo.imprime();
