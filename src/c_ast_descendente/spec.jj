@@ -1,6 +1,6 @@
 options {
   STATIC=false;
-  DEBUG_PARSER=true;
+   DEBUG_PARSER=false;
 }
 
 PARSER_BEGIN(ConstructorASTsTiny)
@@ -117,7 +117,13 @@ Prog analiza() :
    Prog p;
 }
 {
-   p=S() <EOF> { return p; }
+   p=S() fin() { return p; }
+}
+
+void fin() :
+{}
+{
+   <EOF> | "$$"
 }
 
 Prog S() :

@@ -15,7 +15,6 @@ public class ConstructorASTsTinyDJ extends ConstructorASTsTiny {
         disable_tracing();
     }
 
-    @Override
     protected void trace_token(Token t, String where) {
         if (t.kind == EOF) {
             System.out.println("EOF");
@@ -196,8 +195,6 @@ public class ConstructorASTsTinyDJ extends ConstructorASTsTiny {
                 break;
         }
     }
-    @Override
     protected void trace_call(String s) {}
-    @Override
     protected void trace_return(String s) {}
 }

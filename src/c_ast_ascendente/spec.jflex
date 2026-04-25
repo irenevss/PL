@@ -36,6 +36,7 @@ digitoPositivo = [1-9]
 subrayado = _
 blanco = [ \b\r\t\n]
 comentario = ##[^\n]*
+eof = \$
 
 ParteEntera = [+-]?(0|{digitoPositivo}{digito}*)
 ParteDecimal = \.(0|{digito}*{digitoPositivo})
@@ -48,6 +49,7 @@ LiteralCadena = '([^'\\]|\\b|\\r|\\t|\\n)*'
 %%
 {blanco}               { /* ignore */ }
 {comentario}           { /* ignore */ }
+{eof}                  { return ops.unidadEof(); }
 
 "program"              { return ops.unievaluada(ClaseLexica.PROGRAM); }
 "end_program"          { return ops.unievaluada(ClaseLexica.END_PROGRAM); }

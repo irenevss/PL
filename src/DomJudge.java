@@ -1,66 +1,85 @@
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringReader;
-import impresion.ImpresionInterprete;
-import impresion.ImpresionRecursiva;
-import impresion.ImpresionVisitante;
 import c_ast_ascendente.AnalizadorLexicoTiny;
-import c_ast_descendente.ConstructorASTsTinyDJ;
+import c_ast_descendente.ConstructorASTsTiny;
 import asint.SintaxisAbstractaTiny;
 import errors.GestionErroresTiny.ErrorLexico;
 import errors.GestionErroresTiny.ErrorSintactico;
 import c_ast_descendente.ParseException;
 import c_ast_descendente.TokenMgrError;
+import semantica.ErroresSemanticos;
+import semantica.InfoSemantica;
+import semantica.Pretipado;
+import semantica.Tipado;
+import semantica.Vinculacion;
 
 public class DomJudge {
-    private static String readRemaining(Reader input) throws Exception {
-        StringBuilder sb = new StringBuilder();
-        char[] buf = new char[2048];
-        int n;
-        while ((n = input.read(buf)) != -1) {
-            sb.append(buf, 0, n);
+    static class BISReader extends InputStreamReader {
+        public BISReader(InputStream is) {
+            super(is);
         }
-        return sb.toString();
+
+        @Override
+        public int read(char[] cbuf, int offset, int length) throws IOException {
+            int c = read();
+            if (c == -1) {
+                return -1;
+            }
+            cbuf[offset] = (char) c;
+            return 1;
+        }
     }
 
-    private static void imprimeProcesamientos(asint.SintaxisAbstractaTiny.Prog astProg) {
-        ImpresionRecursiva rec = new ImpresionRecursiva();
-        ImpresionInterprete intr = new ImpresionInterprete();
-        ImpresionVisitante vis = new ImpresionVisitante();
+    private static boolean procesaSemantica(SintaxisAbstractaTiny.Prog p) {
+        InfoSemantica info = new InfoSemantica();
 
-        System.out.println("IMPRESION RECURSIVA");
-        System.out.print(rec.imprime(astProg));
-        System.out.println("IMPRESION INTERPRETE");
-        System.out.print(intr.imprime(astProg));
-        System.out.println("IMPRESION VISITANTE");
-        System.out.print(vis.imprime(astProg));
+        ErroresSemanticos erroresVinculacion = new ErroresSemanticos();
+        new Vinculacion(erroresVinculacion, info).procesa(p);
+        if (erroresVinculacion.hayErrores()) {
+            erroresVinculacion.imprimeErroresDomJudge("Errores_vinculacion");
+            return false;
+        }
+
+        ErroresSemanticos erroresPretipado = new ErroresSemanticos();
+        new Pretipado(erroresPretipado, info).procesa(p);
+        if (erroresPretipado.hayErrores()) {
+            erroresPretipado.imprimeErroresDomJudge("Errores_pretipado");
+            return false;
+        }
+
+        ErroresSemanticos erroresTipado = new ErroresSemanticos();
+        new Tipado(erroresTipado, info).procesa(p);
+        if (erroresTipado.hayErrores()) {
+            erroresTipado.imprimeErroresDomJudge("Errores_tipado");
+            return false;
+        }
+
+        return true;
     }
 
     public static void main(String[] args) throws Exception {
-        System.setOut(new java.io.PrintStream(System.out, true, "UTF-8"));
-        Reader input = new InputStreamReader(System.in, "UTF-8");
-        int selector = input.read();
-        String source = readRemaining(input);
+        char selector = (char) System.in.read();
+        Reader input = new BISReader(System.in);
 
         try {
             if (selector == 'd') {
-                System.out.println("CONSTRUCCION AST DESCENDENTE");
-                ConstructorASTsTinyDJ parser = new ConstructorASTsTinyDJ(new StringReader(source));
-                parser.enable_tracing();
+                ConstructorASTsTiny parser = new ConstructorASTsTiny(input);
+                parser.disable_tracing();
                 SintaxisAbstractaTiny.Prog astJJ = parser.analiza();
                 if (astJJ != null) {
-                    imprimeProcesamientos(astJJ);
+                    procesaSemantica(astJJ);
                 }
 
             } else if (selector == 'a') {
-                System.out.println("CONSTRUCCION AST ASCENDENTE");
-                AnalizadorLexicoTiny alex = new AnalizadorLexicoTiny(new StringReader(source));
-                c_ast_ascendente.AnalizadorSintacticoTinyDJ asintCup = new c_ast_ascendente.AnalizadorSintacticoTinyDJ(
+                AnalizadorLexicoTiny alex = new AnalizadorLexicoTiny(input);
+                c_ast_ascendente.AnalizadorSintacticoTiny asintCup = new c_ast_ascendente.AnalizadorSintacticoTiny(
                         alex);
                 asint.SintaxisAbstractaTiny.Prog astProg = (asint.SintaxisAbstractaTiny.Prog) asintCup
-                        .debug_parse().value;
+                        .parse().value;
                 if (astProg != null) {
-                    imprimeProcesamientos(astProg);
+                    procesaSemantica(astProg);
                 }
             }
         } catch (TokenMgrError e) {

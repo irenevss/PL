@@ -16,6 +16,10 @@ public class ALexOperations {
         return new UnidadLexica(alex.fila(), alex.columna(), clase, lexema);
     }
 
+    public UnidadLexica unidadEof() {
+        return new UnidadLexica(alex.fila(), alex.columna(), ClaseLexica.EOF, "EOF");
+    }
+
     private String lexema(int clase) {
         switch (clase) {
             case ClaseLexica.PROGRAM:
