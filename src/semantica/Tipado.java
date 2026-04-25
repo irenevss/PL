@@ -1,11 +1,15 @@
 package semantica;
 
+import asint.ProcesamientoDef;
 import asint.SintaxisAbstractaTiny.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
-public class Tipado {
+public class Tipado extends ProcesamientoDef {
     private final ErroresSemanticos errores;
     private final InfoSemantica info;
 
@@ -42,125 +46,208 @@ public class Tipado {
         }
     }
 
+    private static class TipoPair {
+        final Tipo destino;
+        final Tipo origen;
+
+        TipoPair(Tipo destino, Tipo origen) {
+            this.destino = destino;
+            this.origen = origen;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof TipoPair)) {
+                return false;
+            }
+            TipoPair that = (TipoPair) o;
+            return destino == that.destino && origen == that.origen;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(System.identityHashCode(destino), System.identityHashCode(origen));
+        }
+    }
+
     public Tipado(ErroresSemanticos errores, InfoSemantica info) {
         this.errores = errores;
         this.info = info;
     }
 
     public void procesa(Prog p) {
-        tipaDecs(p.decs);
-        tipaInstrs(p.instrs);
+        p.process(this);
     }
 
-    private void tipaDecs(LDec_0 decs0) {
-        if (decs0 instanceof Si_dec) {
-            tipaDecs(((Si_dec) decs0).decs);
+    @Override
+    public void process(Prog p) {
+        if (p.decs != null) {
+            p.decs.process(this);
+        }
+        if (p.instrs != null) {
+            p.instrs.process(this);
         }
     }
 
-    private void tipaDecs(LDec decs) {
-        if (decs instanceof Muchas_decs) {
-            Muchas_decs m = (Muchas_decs) decs;
-            tipaDecs(m.decs);
-            tipaDec(m.dec);
-        } else if (decs instanceof Una_dec) {
-            tipaDec(((Una_dec) decs).dec);
+    @Override
+    public void process(Si_dec ld) {
+        if (ld.decs != null) {
+            ld.decs.process(this);
         }
     }
 
-    private void tipaDec(Dec d) {
-        if (d instanceof Dec_proc) {
-            Dec_proc p = (Dec_proc) d;
-            tipaDecs(p.decs);
-            tipaInstrs(p.instrs);
+    @Override
+    public void process(Muchas_decs ld) {
+        if (ld.decs != null) {
+            ld.decs.process(this);
+        }
+        if (ld.dec != null) {
+            ld.dec.process(this);
         }
     }
 
-    private void tipaInstrs(Instrs_0 instrs0) {
-        if (instrs0 instanceof Si_instr) {
-            tipaInstrs(((Si_instr) instrs0).instrs);
+    @Override
+    public void process(Una_dec ld) {
+        if (ld.dec != null) {
+            ld.dec.process(this);
         }
     }
 
-    private void tipaInstrs(LInstr instrs) {
-        if (instrs instanceof Muchas_instr) {
-            Muchas_instr m = (Muchas_instr) instrs;
-            tipaInstrs(m.instrs);
-            tipaInstr(m.instr);
-        } else if (instrs instanceof Una_instr) {
-            tipaInstr(((Una_instr) instrs).instr);
+    @Override
+    public void process(Dec_proc d) {
+        if (d.decs != null) {
+            d.decs.process(this);
+        }
+        if (d.instrs != null) {
+            d.instrs.process(this);
         }
     }
 
-    private void tipaInstr(Instr i) {
-        if (i instanceof Instr_asig) {
-            Instr_asig a = (Instr_asig) i;
-            TExp t1 = tipoExp(a.exp1);
-            TExp t2 = tipoExp(a.exp2);
-            if (!t1.designador) {
-                errores.error(a.exp1, "la parte izquierda debe ser un designador");
-            }
-            if (!compatiblesAsignacion(t1.tipo, t2.tipo)) {
-                errores.error(i, "tipos incompatibles en asignacion");
-            }
-        } else if (i instanceof Instr_if) {
-            Instr_if x = (Instr_if) i;
-            TExp c = tipoExp(x.exp);
-            if (c.tipo.kind != Kind.BOOL && c.tipo.kind != Kind.ERROR) {
-                errores.error(x.exp, "esperada expresion booleana");
-            }
-            tipaInstrs(x.instrs);
-        } else if (i instanceof Instr_ifelse) {
-            Instr_ifelse x = (Instr_ifelse) i;
-            TExp c = tipoExp(x.exp);
-            if (c.tipo.kind != Kind.BOOL && c.tipo.kind != Kind.ERROR) {
-                errores.error(x.exp, "esperada expresion booleana");
-            }
-            tipaInstrs(x.instrs1);
-            tipaInstrs(x.instrs2);
-        } else if (i instanceof Instr_while) {
-            Instr_while x = (Instr_while) i;
-            TExp c = tipoExp(x.exp);
-            if (c.tipo.kind != Kind.BOOL && c.tipo.kind != Kind.ERROR) {
-                errores.error(x.exp, "esperada expresion booleana");
-            }
-            tipaInstrs(x.instrs);
-        } else if (i instanceof Instr_lectura) {
-            Instr_lectura x = (Instr_lectura) i;
-            TExp t = tipoExp(x.exp);
-            if (!t.designador) {
-                errores.error(x.exp, "designador esperado");
-            }
-            if (!legible(t.tipo)) {
-                errores.error(x.exp, "valor no legible");
-            }
-        } else if (i instanceof Instr_escritura) {
-            Instr_escritura x = (Instr_escritura) i;
-            TExp t = tipoExp(x.exp);
-            if (!imprimible(t.tipo)) {
-                errores.error(x.exp, "valor no imprimible");
-            }
-        } else if (i instanceof Instr_reserva) {
-            Instr_reserva x = (Instr_reserva) i;
-            TExp t = tipoExp(x.exp);
-            if (!t.designador) {
-                errores.error(x.exp, "designador esperado");
-            }
-            if (t.tipo.kind != Kind.POINTER && t.tipo.kind != Kind.ERROR) {
-                errores.error(x.exp, "esperado tipo puntero");
-            }
-        } else if (i instanceof Instr_liberacion) {
-            Instr_liberacion x = (Instr_liberacion) i;
-            TExp t = tipoExp(x.exp);
-            if (t.tipo.kind != Kind.POINTER && t.tipo.kind != Kind.ERROR) {
-                errores.error(x.exp, "esperado tipo puntero");
-            }
-        } else if (i instanceof Instr_invocar) {
-            tipaInvocacion((Instr_invocar) i);
-        } else if (i instanceof Instr_compuesta) {
-            Instr_compuesta b = (Instr_compuesta) i;
-            tipaDecs(b.decs);
-            tipaInstrs(b.instrs);
+    @Override
+    public void process(Si_instr ld) {
+        if (ld.instrs != null) {
+            ld.instrs.process(this);
+        }
+    }
+
+    @Override
+    public void process(Muchas_instr ld) {
+        if (ld.instrs != null) {
+            ld.instrs.process(this);
+        }
+        if (ld.instr != null) {
+            ld.instr.process(this);
+        }
+    }
+
+    @Override
+    public void process(Una_instr ld) {
+        if (ld.instr != null) {
+            ld.instr.process(this);
+        }
+    }
+
+    @Override
+    public void process(Instr_asig i) {
+        TExp t1 = tipoExp(i.exp1);
+        TExp t2 = tipoExp(i.exp2);
+        if (!t1.designador) {
+            errores.error(i.exp1, "la parte izquierda debe ser un designador");
+        }
+        if (!compatiblesAsignacion(t1.tipo, t2.tipo)) {
+            errores.error(i, "tipos incompatibles en asignacion");
+        }
+    }
+
+    @Override
+    public void process(Instr_if i) {
+        TExp c = tipoExp(i.exp);
+        if (c.tipo.kind != Kind.BOOL && c.tipo.kind != Kind.ERROR) {
+            errores.error(i.exp, "esperada expresion booleana");
+        }
+        if (i.instrs != null) {
+            i.instrs.process(this);
+        }
+    }
+
+    @Override
+    public void process(Instr_ifelse i) {
+        TExp c = tipoExp(i.exp);
+        if (c.tipo.kind != Kind.BOOL && c.tipo.kind != Kind.ERROR) {
+            errores.error(i.exp, "esperada expresion booleana");
+        }
+        if (i.instrs1 != null) {
+            i.instrs1.process(this);
+        }
+        if (i.instrs2 != null) {
+            i.instrs2.process(this);
+        }
+    }
+
+    @Override
+    public void process(Instr_while i) {
+        TExp c = tipoExp(i.exp);
+        if (c.tipo.kind != Kind.BOOL && c.tipo.kind != Kind.ERROR) {
+            errores.error(i.exp, "esperada expresion booleana");
+        }
+        if (i.instrs != null) {
+            i.instrs.process(this);
+        }
+    }
+
+    @Override
+    public void process(Instr_lectura i) {
+        TExp t = tipoExp(i.exp);
+        if (!t.designador) {
+            errores.error(i.exp, "designador esperado");
+        }
+        if (!legible(t.tipo)) {
+            errores.error(i.exp, "valor no legible");
+        }
+    }
+
+    @Override
+    public void process(Instr_escritura i) {
+        TExp t = tipoExp(i.exp);
+        if (!imprimible(t.tipo)) {
+            errores.error(i.exp, "valor no imprimible");
+        }
+    }
+
+    @Override
+    public void process(Instr_reserva i) {
+        TExp t = tipoExp(i.exp);
+        if (!t.designador) {
+            errores.error(i.exp, "designador esperado");
+        }
+        if (t.tipo.kind != Kind.POINTER && t.tipo.kind != Kind.ERROR) {
+            errores.error(i.exp, "esperado tipo puntero");
+        }
+    }
+
+    @Override
+    public void process(Instr_liberacion i) {
+        TExp t = tipoExp(i.exp);
+        if (t.tipo.kind != Kind.POINTER && t.tipo.kind != Kind.ERROR) {
+            errores.error(i.exp, "esperado tipo puntero");
+        }
+    }
+
+    @Override
+    public void process(Instr_invocar i) {
+        tipaInvocacion(i);
+    }
+
+    @Override
+    public void process(Instr_compuesta i) {
+        if (i.decs != null) {
+            i.decs.process(this);
+        }
+        if (i.instrs != null) {
+            i.instrs.process(this);
         }
     }
 
@@ -479,22 +566,35 @@ public class Tipado {
     }
 
     private boolean compatiblesAsignacion(TVal destino, TVal origen) {
+        return compatiblesAsignacion(destino, origen, new HashSet<>());
+    }
+
+    private boolean compatiblesAsignacion(TVal destino, TVal origen, Set<TipoPair> visitados) {
         if (destino.kind == Kind.ERROR || origen.kind == Kind.ERROR) {
             return true;
         }
+
+        if (destino.origen != null && origen.origen != null) {
+            TipoPair par = new TipoPair(destino.origen, origen.origen);
+            if (!visitados.add(par)) {
+                return true;
+            }
+        }
+
         if (destino.kind == origen.kind) {
             if (destino.kind == Kind.ARRAY) {
                 Tipo_array td = (Tipo_array) destino.origen;
                 Tipo_array to = (Tipo_array) origen.origen;
-                return td.dim.equals(to.dim) && compatiblesAsignacion(tipoDeTipo(td.tipo), tipoDeTipo(to.tipo));
+                return td.dim.equals(to.dim)
+                        && compatiblesAsignacion(tipoDeTipo(td.tipo), tipoDeTipo(to.tipo), visitados);
             }
             if (destino.kind == Kind.RECORD) {
-                return compatiblesRecord((Tipo_record) destino.origen, (Tipo_record) origen.origen);
+                return compatiblesRecord((Tipo_record) destino.origen, (Tipo_record) origen.origen, visitados);
             }
             if (destino.kind == Kind.POINTER) {
                 Tipo_pointer pd = (Tipo_pointer) destino.origen;
                 Tipo_pointer po = (Tipo_pointer) origen.origen;
-                return compatiblesAsignacion(tipoDeTipo(pd.tipo), tipoDeTipo(po.tipo));
+                return compatiblesAsignacion(tipoDeTipo(pd.tipo), tipoDeTipo(po.tipo), visitados);
             }
             return true;
         }
@@ -507,7 +607,7 @@ public class Tipado {
         return false;
     }
 
-    private boolean compatiblesRecord(Tipo_record t1, Tipo_record t2) {
+    private boolean compatiblesRecord(Tipo_record t1, Tipo_record t2, Set<TipoPair> visitados) {
         List<CamposRecord> c1 = camposDeRecord(t1.lista);
         List<CamposRecord> c2 = camposDeRecord(t2.lista);
         if (c1.size() != c2.size()) {
@@ -519,7 +619,7 @@ public class Tipado {
             if (!f1.id.equals(f2.id)) {
                 return false;
             }
-            if (!compatiblesAsignacion(tipoDeTipo(f1.tipo), tipoDeTipo(f2.tipo))) {
+            if (!compatiblesAsignacion(tipoDeTipo(f1.tipo), tipoDeTipo(f2.tipo), visitados)) {
                 return false;
             }
         }

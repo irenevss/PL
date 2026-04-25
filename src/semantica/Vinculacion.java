@@ -1,12 +1,13 @@
 package semantica;
 
-import asint.SintaxisAbstractaTiny;
+import asint.ProcesamientoDef;
 import asint.SintaxisAbstractaTiny.*;
 
-public class Vinculacion {
+public class Vinculacion extends ProcesamientoDef {
     private final ErroresSemanticos errores;
     private final InfoSemantica info;
     private final TablaSimbolos ts = new TablaSimbolos();
+    private boolean segundaPasada;
 
     public Vinculacion(ErroresSemanticos errores, InfoSemantica info) {
         this.errores = errores;
@@ -14,289 +15,494 @@ public class Vinculacion {
     }
 
     public void procesa(Prog p) {
-        abreAmbito();
-        vinculaDecsPrimeraPasada(p.decs);
-        vinculaDecsSegundaPasada(p.decs);
-        vinculaInstrs(p.instrs);
-        cierraAmbito();
-    }
-
-    private void abreAmbito() {
+        segundaPasada = false;
         ts.abreAmbito();
-    }
-
-    private void cierraAmbito() {
+        p.process(this);
         ts.cierraAmbito();
     }
 
-    private boolean contieneEnActual(String id) {
-        return ts.contieneEnActual(id);
-    }
-
     private void inserta(String id, Nodo dec, Nodo n) {
-        if (contieneEnActual(id)) {
+        if (ts.contieneEnActual(id)) {
             errores.error(n, "declaracion duplicada:" + id);
         } else {
             ts.inserta(id, dec);
         }
     }
 
-    private Nodo vinculoDe(String id) {
-        return ts.vinculoDe(id);
-    }
-
-    private void vinculaDecsPrimeraPasada(LDec_0 decs0) {
-        if (decs0 instanceof Si_dec) {
-            vinculaDecsPrimeraPasada(((Si_dec) decs0).decs);
+    private void vinculaUso(Nodo uso, String id) {
+        Nodo vinculo = ts.vinculoDe(id);
+        if (vinculo == null) {
+            errores.error(uso, "identificador no declarado:" + id);
+            return;
+        }
+        if (uso instanceof Tipo_id) {
+            info.vincula((Tipo_id) uso, vinculo);
+        } else if (uso instanceof Iden) {
+            info.vincula((Iden) uso, vinculo);
+        } else if (uso instanceof Instr_invocar) {
+            info.vincula((Instr_invocar) uso, vinculo);
         }
     }
 
-    private void vinculaDecsPrimeraPasada(LDec decs) {
-        if (decs instanceof Muchas_decs) {
-            Muchas_decs m = (Muchas_decs) decs;
-            vinculaDecsPrimeraPasada(m.decs);
-            vinculaDecPrimeraPasada(m.dec);
-        } else if (decs instanceof Una_dec) {
-            vinculaDecPrimeraPasada(((Una_dec) decs).dec);
+    @Override
+    public void process(Prog p) {
+        if (p.decs != null) {
+            p.decs.process(this);
+        }
+        segundaPasada = true;
+        if (p.decs != null) {
+            p.decs.process(this);
+        }
+        segundaPasada = false;
+        if (p.instrs != null) {
+            p.instrs.process(this);
         }
     }
 
-    private void vinculaDecPrimeraPasada(Dec dec) {
-        if (dec instanceof Dec_var) {
-            Dec_var d = (Dec_var) dec;
-            vinculaTipoPrimeraPasada(d.tipo);
+    @Override
+    public void process(Si_dec ld) {
+        if (ld.decs != null) {
+            ld.decs.process(this);
+        }
+    }
+
+    @Override
+    public void process(Muchas_decs ld) {
+        if (ld.decs != null) {
+            ld.decs.process(this);
+        }
+        if (ld.dec != null) {
+            ld.dec.process(this);
+        }
+    }
+
+    @Override
+    public void process(Una_dec ld) {
+        if (ld.dec != null) {
+            ld.dec.process(this);
+        }
+    }
+
+    @Override
+    public void process(Dec_var d) {
+        if (d.tipo != null) {
+            d.tipo.process(this);
+        }
+        if (!segundaPasada) {
             inserta(d.id, d, d);
-        } else if (dec instanceof Dec_tipo) {
-            Dec_tipo d = (Dec_tipo) dec;
-            vinculaTipoPrimeraPasada(d.tipo);
+        }
+    }
+
+    @Override
+    public void process(Dec_tipo d) {
+        if (d.tipo != null) {
+            d.tipo.process(this);
+        }
+        if (!segundaPasada) {
             inserta(d.id, d, d);
-        } else if (dec instanceof Dec_proc) {
-            Dec_proc d = (Dec_proc) dec;
-            inserta(d.id, d, d);
-
-            abreAmbito();
-            vinculaProcParamsPrimeraPasada(d.params);
-            vinculaDecsPrimeraPasada(d.decs);
-            vinculaDecsSegundaPasada(d.decs);
-            vinculaInstrs(d.instrs);
-            cierraAmbito();
         }
     }
 
-    private void vinculaProcParamsPrimeraPasada(LProcParams_0 params0) {
-        if (params0 instanceof Si_procparam) {
-            vinculaProcParamsPrimeraPasada(((Si_procparam) params0).params);
+    @Override
+    public void process(Dec_proc d) {
+        if (segundaPasada) {
+            ts.abreAmbito();
+            if (d.params != null) {
+                d.params.process(this);
+            }
+            if (d.decs != null) {
+                d.decs.process(this);
+            }
+            ts.cierraAmbito();
+            return;
+        }
+
+        inserta(d.id, d, d);
+
+        ts.abreAmbito();
+        if (d.params != null) {
+            d.params.process(this);
+        }
+        if (d.decs != null) {
+            d.decs.process(this);
+        }
+
+        boolean prev = segundaPasada;
+        segundaPasada = true;
+        if (d.decs != null) {
+            d.decs.process(this);
+        }
+        segundaPasada = prev;
+
+        if (d.instrs != null) {
+            d.instrs.process(this);
+        }
+        ts.cierraAmbito();
+    }
+
+    @Override
+    public void process(Si_procparam ld) {
+        if (ld.params != null) {
+            ld.params.process(this);
         }
     }
 
-    private void vinculaProcParamsPrimeraPasada(LProcParams params) {
-        if (params instanceof Muchos_procparam) {
-            Muchos_procparam m = (Muchos_procparam) params;
-            vinculaProcParamsPrimeraPasada(m.params);
-            vinculaProcParamPrimeraPasada(m.param);
-        } else if (params instanceof Un_procparam) {
-            vinculaProcParamPrimeraPasada(((Un_procparam) params).param);
+    @Override
+    public void process(Muchos_procparam ld) {
+        if (ld.params != null) {
+            ld.params.process(this);
+        }
+        if (ld.param != null) {
+            ld.param.process(this);
         }
     }
 
-    private void vinculaProcParamPrimeraPasada(Param param) {
-        if (param instanceof Param_ref) {
-            Param_ref p = (Param_ref) param;
-            vinculaTipoPrimeraPasada(p.tipo);
+    @Override
+    public void process(Un_procparam ld) {
+        if (ld.param != null) {
+            ld.param.process(this);
+        }
+    }
+
+    @Override
+    public void process(Param_ref p) {
+        if (p.tipo != null) {
+            p.tipo.process(this);
+        }
+        if (!segundaPasada) {
             inserta(p.id, p, p);
-        } else if (param instanceof Param_val) {
-            Param_val p = (Param_val) param;
-            vinculaTipoPrimeraPasada(p.tipo);
+        }
+    }
+
+    @Override
+    public void process(Param_val p) {
+        if (p.tipo != null) {
+            p.tipo.process(this);
+        }
+        if (!segundaPasada) {
             inserta(p.id, p, p);
         }
     }
 
-    private void vinculaDecsSegundaPasada(LDec_0 decs0) {
-        if (decs0 instanceof Si_dec) {
-            vinculaDecsSegundaPasada(((Si_dec) decs0).decs);
+    @Override
+    public void process(Tipo_id t) {
+        if (!segundaPasada) {
+            vinculaUso(t, t.id);
         }
     }
 
-    private void vinculaDecsSegundaPasada(LDec decs) {
-        if (decs instanceof Muchas_decs) {
-            Muchas_decs m = (Muchas_decs) decs;
-            vinculaDecsSegundaPasada(m.decs);
-            vinculaDecSegundaPasada(m.dec);
-        } else if (decs instanceof Una_dec) {
-            vinculaDecSegundaPasada(((Una_dec) decs).dec);
+    @Override
+    public void process(Tipo_array t) {
+        if (t.tipo != null) {
+            t.tipo.process(this);
         }
     }
 
-    private void vinculaDecSegundaPasada(Dec dec) {
-        if (dec instanceof Dec_var) {
-            vinculaTipoSegundaPasada(((Dec_var) dec).tipo);
-        } else if (dec instanceof Dec_tipo) {
-            vinculaTipoSegundaPasada(((Dec_tipo) dec).tipo);
-        }
-    }
-
-    private void vinculaTipoPrimeraPasada(Tipo tipo) {
-        if (tipo instanceof Tipo_id) {
-            Tipo_id t = (Tipo_id) tipo;
-            Nodo vinculo = vinculoDe(t.id);
-            if (vinculo == null) {
-                errores.error(t, "identificador no declarado:" + t.id);
-            } else {
-                info.vincula(t, vinculo);
+    @Override
+    public void process(Tipo_pointer t) {
+        if (!segundaPasada) {
+            if (!(t.tipo instanceof Tipo_id) && t.tipo != null) {
+                t.tipo.process(this);
             }
-        } else if (tipo instanceof Tipo_array) {
-            vinculaTipoPrimeraPasada(((Tipo_array) tipo).tipo);
-        } else if (tipo instanceof Tipo_pointer) {
-            Tipo apuntado = ((Tipo_pointer) tipo).tipo;
-            if (!(apuntado instanceof Tipo_id)) {
-                vinculaTipoPrimeraPasada(apuntado);
-            }
-        } else if (tipo instanceof Tipo_record) {
-            vinculaCamposRecordPrimeraPasada(((Tipo_record) tipo).lista);
-        }
-    }
-
-    private void vinculaCamposRecordPrimeraPasada(ListaRecord lista) {
-        if (lista instanceof Muchos_camposrecord) {
-            Muchos_camposrecord m = (Muchos_camposrecord) lista;
-            vinculaCamposRecordPrimeraPasada(m.lista);
-            vinculaTipoPrimeraPasada(m.campo.tipo);
-        } else if (lista instanceof Un_camporecord) {
-            vinculaTipoPrimeraPasada(((Un_camporecord) lista).campo.tipo);
-        }
-    }
-
-    private void vinculaTipoSegundaPasada(Tipo tipo) {
-        if (tipo instanceof Tipo_array) {
-            vinculaTipoSegundaPasada(((Tipo_array) tipo).tipo);
-        } else if (tipo instanceof Tipo_pointer) {
-            Tipo apuntado = ((Tipo_pointer) tipo).tipo;
-            if (apuntado instanceof Tipo_id) {
-                Tipo_id t = (Tipo_id) apuntado;
-                Nodo vinculo = vinculoDe(t.id);
-                if (vinculo == null) {
-                    errores.error(t, "identificador no declarado:" + t.id);
-                } else {
-                    info.vincula(t, vinculo);
-                }
-            } else {
-                vinculaTipoSegundaPasada(apuntado);
-            }
-        } else if (tipo instanceof Tipo_record) {
-            vinculaCamposRecordSegundaPasada(((Tipo_record) tipo).lista);
-        }
-    }
-
-    private void vinculaCamposRecordSegundaPasada(ListaRecord lista) {
-        if (lista instanceof Muchos_camposrecord) {
-            Muchos_camposrecord m = (Muchos_camposrecord) lista;
-            vinculaCamposRecordSegundaPasada(m.lista);
-            vinculaTipoSegundaPasada(m.campo.tipo);
-        } else if (lista instanceof Un_camporecord) {
-            vinculaTipoSegundaPasada(((Un_camporecord) lista).campo.tipo);
-        }
-    }
-
-    private void vinculaInstrs(Instrs_0 instrs0) {
-        if (instrs0 instanceof Si_instr) {
-            vinculaInstrs(((Si_instr) instrs0).instrs);
-        }
-    }
-
-    private void vinculaInstrs(LInstr instrs) {
-        if (instrs instanceof Muchas_instr) {
-            Muchas_instr m = (Muchas_instr) instrs;
-            vinculaInstrs(m.instrs);
-            vinculaInstr(m.instr);
-        } else if (instrs instanceof Una_instr) {
-            vinculaInstr(((Una_instr) instrs).instr);
-        }
-    }
-
-    private void vinculaInstr(Instr i) {
-        if (i instanceof Instr_asig) {
-            Instr_asig a = (Instr_asig) i;
-            vinculaExp(a.exp1);
-            vinculaExp(a.exp2);
-        } else if (i instanceof Instr_if) {
-            Instr_if x = (Instr_if) i;
-            vinculaExp(x.exp);
-            vinculaInstrs(x.instrs);
-        } else if (i instanceof Instr_ifelse) {
-            Instr_ifelse x = (Instr_ifelse) i;
-            vinculaExp(x.exp);
-            vinculaInstrs(x.instrs1);
-            vinculaInstrs(x.instrs2);
-        } else if (i instanceof Instr_while) {
-            Instr_while x = (Instr_while) i;
-            vinculaExp(x.exp);
-            vinculaInstrs(x.instrs);
-        } else if (i instanceof Instr_lectura) {
-            vinculaExp(((Instr_lectura) i).exp);
-        } else if (i instanceof Instr_escritura) {
-            vinculaExp(((Instr_escritura) i).exp);
-        } else if (i instanceof Instr_reserva) {
-            vinculaExp(((Instr_reserva) i).exp);
-        } else if (i instanceof Instr_liberacion) {
-            vinculaExp(((Instr_liberacion) i).exp);
-        } else if (i instanceof Instr_invocar) {
-            Instr_invocar inv = (Instr_invocar) i;
-            Nodo vinculo = vinculoDe(inv.id);
-            if (vinculo == null) {
-                errores.error(inv, "identificador no declarado:" + inv.id);
-            } else {
-                info.vincula(inv, vinculo);
-            }
-            vinculaExps(inv.exps);
-        } else if (i instanceof Instr_compuesta) {
-            Instr_compuesta b = (Instr_compuesta) i;
-            abreAmbito();
-            vinculaDecsPrimeraPasada(b.decs);
-            vinculaDecsSegundaPasada(b.decs);
-            vinculaInstrs(b.instrs);
-            cierraAmbito();
-        }
-    }
-
-    private void vinculaExps(LExps_0 exps0) {
-        if (exps0 instanceof Si_exps) {
-            vinculaExps(((Si_exps) exps0).exps);
-        }
-    }
-
-    private void vinculaExps(LExps exps) {
-        if (exps instanceof Muchas_exps) {
-            Muchas_exps m = (Muchas_exps) exps;
-            vinculaExps(m.exps);
-            vinculaExp(m.exp);
-        } else if (exps instanceof Una_exp) {
-            vinculaExp(((Una_exp) exps).exp);
-        }
-    }
-
-    private void vinculaExp(Exp e) {
-        if (e instanceof ExpBin) {
-            ExpBin b = (ExpBin) e;
-            vinculaExp(b.opnd0);
-            vinculaExp(b.opnd1);
-        } else if (e instanceof ExpUni) {
-            vinculaExp(((ExpUni) e).opnd);
-        } else if (e instanceof Exp_array) {
-            Exp_array a = (Exp_array) e;
-            vinculaExp(a.opnd0);
-            vinculaExp(a.opnd1);
-        } else if (e instanceof Exp_campo) {
-            vinculaExp(((Exp_campo) e).base);
-        } else if (e instanceof Exp_flecha) {
-            vinculaExp(((Exp_flecha) e).base);
-        } else if (e instanceof Iden) {
-            Iden id = (Iden) e;
-            Nodo vinculo = vinculoDe(id.id);
-            if (vinculo == null) {
-                errores.error(id, "identificador no declarado:" + id.id);
-            } else {
-                info.vincula(id, vinculo);
+        } else {
+            if (t.tipo instanceof Tipo_id) {
+                Tipo_id tid = (Tipo_id) t.tipo;
+                vinculaUso(tid, tid.id);
+            } else if (t.tipo != null) {
+                t.tipo.process(this);
             }
         }
+    }
+
+    @Override
+    public void process(Tipo_record t) {
+        if (t.lista != null) {
+            t.lista.process(this);
+        }
+    }
+
+    @Override
+    public void process(Muchos_camposrecord ld) {
+        if (ld.lista != null) {
+            ld.lista.process(this);
+        }
+        if (ld.campo != null) {
+            ld.campo.process(this);
+        }
+    }
+
+    @Override
+    public void process(Un_camporecord ld) {
+        if (ld.campo != null) {
+            ld.campo.process(this);
+        }
+    }
+
+    @Override
+    public void process(CamposRecord cr) {
+        if (cr.tipo != null) {
+            cr.tipo.process(this);
+        }
+    }
+
+    @Override
+    public void process(Si_instr ld) {
+        if (ld.instrs != null) {
+            ld.instrs.process(this);
+        }
+    }
+
+    @Override
+    public void process(Muchas_instr ld) {
+        if (ld.instrs != null) {
+            ld.instrs.process(this);
+        }
+        if (ld.instr != null) {
+            ld.instr.process(this);
+        }
+    }
+
+    @Override
+    public void process(Una_instr ld) {
+        if (ld.instr != null) {
+            ld.instr.process(this);
+        }
+    }
+
+    @Override
+    public void process(Instr_asig i) {
+        if (i.exp1 != null) {
+            i.exp1.process(this);
+        }
+        if (i.exp2 != null) {
+            i.exp2.process(this);
+        }
+    }
+
+    @Override
+    public void process(Instr_if i) {
+        if (i.exp != null) {
+            i.exp.process(this);
+        }
+        if (i.instrs != null) {
+            i.instrs.process(this);
+        }
+    }
+
+    @Override
+    public void process(Instr_ifelse i) {
+        if (i.exp != null) {
+            i.exp.process(this);
+        }
+        if (i.instrs1 != null) {
+            i.instrs1.process(this);
+        }
+        if (i.instrs2 != null) {
+            i.instrs2.process(this);
+        }
+    }
+
+    @Override
+    public void process(Instr_while i) {
+        if (i.exp != null) {
+            i.exp.process(this);
+        }
+        if (i.instrs != null) {
+            i.instrs.process(this);
+        }
+    }
+
+    @Override
+    public void process(Instr_lectura i) {
+        if (i.exp != null) {
+            i.exp.process(this);
+        }
+    }
+
+    @Override
+    public void process(Instr_escritura i) {
+        if (i.exp != null) {
+            i.exp.process(this);
+        }
+    }
+
+    @Override
+    public void process(Instr_reserva i) {
+        if (i.exp != null) {
+            i.exp.process(this);
+        }
+    }
+
+    @Override
+    public void process(Instr_liberacion i) {
+        if (i.exp != null) {
+            i.exp.process(this);
+        }
+    }
+
+    @Override
+    public void process(Instr_invocar i) {
+        vinculaUso(i, i.id);
+        if (i.exps != null) {
+            i.exps.process(this);
+        }
+    }
+
+    @Override
+    public void process(Instr_compuesta i) {
+        ts.abreAmbito();
+        if (i.decs != null) {
+            i.decs.process(this);
+        }
+
+        boolean prev = segundaPasada;
+        segundaPasada = true;
+        if (i.decs != null) {
+            i.decs.process(this);
+        }
+        segundaPasada = prev;
+
+        if (i.instrs != null) {
+            i.instrs.process(this);
+        }
+        ts.cierraAmbito();
+    }
+
+    @Override
+    public void process(Si_exps ld) {
+        if (ld.exps != null) {
+            ld.exps.process(this);
+        }
+    }
+
+    @Override
+    public void process(Muchas_exps ld) {
+        if (ld.exps != null) {
+            ld.exps.process(this);
+        }
+        if (ld.exp != null) {
+            ld.exp.process(this);
+        }
+    }
+
+    @Override
+    public void process(Una_exp ld) {
+        if (ld.exp != null) {
+            ld.exp.process(this);
+        }
+    }
+
+    @Override
+    public void process(Exp_suma e) {
+        e.opnd0.process(this);
+        e.opnd1.process(this);
+    }
+
+    @Override
+    public void process(Exp_resta e) {
+        e.opnd0.process(this);
+        e.opnd1.process(this);
+    }
+
+    @Override
+    public void process(Exp_mul e) {
+        e.opnd0.process(this);
+        e.opnd1.process(this);
+    }
+
+    @Override
+    public void process(Exp_div e) {
+        e.opnd0.process(this);
+        e.opnd1.process(this);
+    }
+
+    @Override
+    public void process(Exp_mod e) {
+        e.opnd0.process(this);
+        e.opnd1.process(this);
+    }
+
+    @Override
+    public void process(Exp_and e) {
+        e.opnd0.process(this);
+        e.opnd1.process(this);
+    }
+
+    @Override
+    public void process(Exp_or e) {
+        e.opnd0.process(this);
+        e.opnd1.process(this);
+    }
+
+    @Override
+    public void process(Exp_mayor e) {
+        e.opnd0.process(this);
+        e.opnd1.process(this);
+    }
+
+    @Override
+    public void process(Exp_menor e) {
+        e.opnd0.process(this);
+        e.opnd1.process(this);
+    }
+
+    @Override
+    public void process(Exp_mayor_igual e) {
+        e.opnd0.process(this);
+        e.opnd1.process(this);
+    }
+
+    @Override
+    public void process(Exp_menor_igual e) {
+        e.opnd0.process(this);
+        e.opnd1.process(this);
+    }
+
+    @Override
+    public void process(Exp_igual e) {
+        e.opnd0.process(this);
+        e.opnd1.process(this);
+    }
+
+    @Override
+    public void process(Exp_distinto e) {
+        e.opnd0.process(this);
+        e.opnd1.process(this);
+    }
+
+    @Override
+    public void process(Exp_menos_unario e) {
+        e.opnd.process(this);
+    }
+
+    @Override
+    public void process(Exp_not e) {
+        e.opnd.process(this);
+    }
+
+    @Override
+    public void process(Exp_asterisco_unario e) {
+        e.opnd.process(this);
+    }
+
+    @Override
+    public void process(Iden e) {
+        vinculaUso(e, e.id);
+    }
+
+    @Override
+    public void process(Exp_campo e) {
+        e.base.process(this);
+    }
+
+    @Override
+    public void process(Exp_flecha e) {
+        e.base.process(this);
+    }
+
+    @Override
+    public void process(Exp_array e) {
+        e.opnd0.process(this);
+        e.opnd1.process(this);
     }
 }

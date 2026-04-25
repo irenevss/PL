@@ -1,13 +1,17 @@
 package semantica;
 
+import asint.ProcesamientoDef;
 import asint.SintaxisAbstractaTiny.*;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Pretipado {
+public class Pretipado extends ProcesamientoDef {
     private final ErroresSemanticos errores;
     private final InfoSemantica info;
+    private final Deque<Set<String>> pilaCampos = new ArrayDeque<>();
 
     public Pretipado(ErroresSemanticos errores, InfoSemantica info) {
         this.errores = errores;
@@ -15,134 +19,230 @@ public class Pretipado {
     }
 
     public void procesa(Prog p) {
-        pretipaDecs(p.decs);
-        pretipaInstrs(p.instrs);
+        p.process(this);
     }
 
-    private void pretipaDecs(LDec_0 decs0) {
-        if (decs0 instanceof Si_dec) {
-            pretipaDecs(((Si_dec) decs0).decs);
+    @Override
+    public void process(Prog p) {
+        if (p.decs != null) {
+            p.decs.process(this);
+        }
+        if (p.instrs != null) {
+            p.instrs.process(this);
         }
     }
 
-    private void pretipaDecs(LDec decs) {
-        if (decs instanceof Muchas_decs) {
-            Muchas_decs m = (Muchas_decs) decs;
-            pretipaDecs(m.decs);
-            pretipaDec(m.dec);
-        } else if (decs instanceof Una_dec) {
-            pretipaDec(((Una_dec) decs).dec);
+    @Override
+    public void process(Si_dec ld) {
+        if (ld.decs != null) {
+            ld.decs.process(this);
         }
     }
 
-    private void pretipaDec(Dec dec) {
-        if (dec instanceof Dec_var) {
-            pretipaTipo(((Dec_var) dec).tipo);
-        } else if (dec instanceof Dec_tipo) {
-            pretipaTipo(((Dec_tipo) dec).tipo);
-        } else if (dec instanceof Dec_proc) {
-            Dec_proc d = (Dec_proc) dec;
-            pretipaParams(d.params);
-            pretipaDecs(d.decs);
-            pretipaInstrs(d.instrs);
+    @Override
+    public void process(Muchas_decs ld) {
+        if (ld.decs != null) {
+            ld.decs.process(this);
+        }
+        if (ld.dec != null) {
+            ld.dec.process(this);
         }
     }
 
-    private void pretipaParams(LProcParams_0 params0) {
-        if (params0 instanceof Si_procparam) {
-            pretipaParams(((Si_procparam) params0).params);
+    @Override
+    public void process(Una_dec ld) {
+        if (ld.dec != null) {
+            ld.dec.process(this);
         }
     }
 
-    private void pretipaParams(LProcParams params) {
-        if (params instanceof Muchos_procparam) {
-            Muchos_procparam m = (Muchos_procparam) params;
-            pretipaParams(m.params);
-            pretipaParam(m.param);
-        } else if (params instanceof Un_procparam) {
-            pretipaParam(((Un_procparam) params).param);
+    @Override
+    public void process(Dec_var d) {
+        if (d.tipo != null) {
+            d.tipo.process(this);
         }
     }
 
-    private void pretipaParam(Param p) {
-        if (p instanceof Param_ref) {
-            pretipaTipo(((Param_ref) p).tipo);
-        } else if (p instanceof Param_val) {
-            pretipaTipo(((Param_val) p).tipo);
+    @Override
+    public void process(Dec_tipo d) {
+        if (d.tipo != null) {
+            d.tipo.process(this);
         }
     }
 
-    private void pretipaTipo(Tipo t) {
-        if (t instanceof Tipo_id) {
-            Tipo_id tid = (Tipo_id) t;
-            Nodo d = info.vinculoDe(tid);
-            if (!(d instanceof Dec_tipo)) {
-                errores.error(tid, tid.id + " no esta declarado como un tipo");
+    @Override
+    public void process(Dec_proc d) {
+        if (d.params != null) {
+            d.params.process(this);
+        }
+        if (d.decs != null) {
+            d.decs.process(this);
+        }
+        if (d.instrs != null) {
+            d.instrs.process(this);
+        }
+    }
+
+    @Override
+    public void process(Si_procparam ld) {
+        if (ld.params != null) {
+            ld.params.process(this);
+        }
+    }
+
+    @Override
+    public void process(Muchos_procparam ld) {
+        if (ld.params != null) {
+            ld.params.process(this);
+        }
+        if (ld.param != null) {
+            ld.param.process(this);
+        }
+    }
+
+    @Override
+    public void process(Un_procparam ld) {
+        if (ld.param != null) {
+            ld.param.process(this);
+        }
+    }
+
+    @Override
+    public void process(Param_ref p) {
+        if (p.tipo != null) {
+            p.tipo.process(this);
+        }
+    }
+
+    @Override
+    public void process(Param_val p) {
+        if (p.tipo != null) {
+            p.tipo.process(this);
+        }
+    }
+
+    @Override
+    public void process(Tipo_id t) {
+        Nodo d = info.vinculoDe(t);
+        if (!(d instanceof Dec_tipo)) {
+            errores.error(t, t.id + " no esta declarado como un tipo");
+        }
+    }
+
+    @Override
+    public void process(Tipo_array t) {
+        try {
+            int dim = Integer.parseInt(t.dim);
+            if (dim < 0) {
+                errores.error(t, "la dimension no puede ser negativa");
             }
-        } else if (t instanceof Tipo_array) {
-            Tipo_array ta = (Tipo_array) t;
-            try {
-                int dim = Integer.parseInt(ta.dim);
-                if (dim < 0) {
-                    errores.error(ta, "la dimension no puede ser negativa");
-                }
-            } catch (NumberFormatException ex) {
-                errores.error(ta, "la dimension no es un entero valido");
-            }
-            pretipaTipo(ta.tipo);
-        } else if (t instanceof Tipo_pointer) {
-            pretipaTipo(((Tipo_pointer) t).tipo);
-        } else if (t instanceof Tipo_record) {
-            pretipaRecord(((Tipo_record) t).lista, new HashSet<>());
+        } catch (NumberFormatException ex) {
+            errores.error(t, "la dimension no es un entero valido");
+        }
+        if (t.tipo != null) {
+            t.tipo.process(this);
         }
     }
 
-    private void pretipaRecord(ListaRecord lista, Set<String> ids) {
-        if (lista instanceof Muchos_camposrecord) {
-            Muchos_camposrecord m = (Muchos_camposrecord) lista;
-            pretipaRecord(m.lista, ids);
-            pretipaCampo(m.campo, ids);
-        } else if (lista instanceof Un_camporecord) {
-            pretipaCampo(((Un_camporecord) lista).campo, ids);
+    @Override
+    public void process(Tipo_pointer t) {
+        if (t.tipo != null) {
+            t.tipo.process(this);
         }
     }
 
-    private void pretipaCampo(CamposRecord c, Set<String> ids) {
-        if (!ids.add(c.id)) {
+    @Override
+    public void process(Tipo_record t) {
+        pilaCampos.push(new HashSet<>());
+        if (t.lista != null) {
+            t.lista.process(this);
+        }
+        pilaCampos.pop();
+    }
+
+    @Override
+    public void process(Muchos_camposrecord ld) {
+        if (ld.lista != null) {
+            ld.lista.process(this);
+        }
+        if (ld.campo != null) {
+            ld.campo.process(this);
+        }
+    }
+
+    @Override
+    public void process(Un_camporecord ld) {
+        if (ld.campo != null) {
+            ld.campo.process(this);
+        }
+    }
+
+    @Override
+    public void process(CamposRecord c) {
+        Set<String> ids = pilaCampos.peek();
+        if (ids != null && !ids.add(c.id)) {
             errores.error(c, "campo duplicado:" + c.id);
         }
-        pretipaTipo(c.tipo);
-    }
-
-    private void pretipaInstrs(Instrs_0 instrs0) {
-        if (instrs0 instanceof Si_instr) {
-            pretipaInstrs(((Si_instr) instrs0).instrs);
+        if (c.tipo != null) {
+            c.tipo.process(this);
         }
     }
 
-    private void pretipaInstrs(LInstr instrs) {
-        if (instrs instanceof Muchas_instr) {
-            Muchas_instr m = (Muchas_instr) instrs;
-            pretipaInstrs(m.instrs);
-            pretipaInstr(m.instr);
-        } else if (instrs instanceof Una_instr) {
-            pretipaInstr(((Una_instr) instrs).instr);
+    @Override
+    public void process(Si_instr ld) {
+        if (ld.instrs != null) {
+            ld.instrs.process(this);
         }
     }
 
-    private void pretipaInstr(Instr i) {
-        if (i instanceof Instr_compuesta) {
-            Instr_compuesta b = (Instr_compuesta) i;
-            pretipaDecs(b.decs);
-            pretipaInstrs(b.instrs);
-        } else if (i instanceof Instr_if) {
-            pretipaInstrs(((Instr_if) i).instrs);
-        } else if (i instanceof Instr_ifelse) {
-            Instr_ifelse x = (Instr_ifelse) i;
-            pretipaInstrs(x.instrs1);
-            pretipaInstrs(x.instrs2);
-        } else if (i instanceof Instr_while) {
-            pretipaInstrs(((Instr_while) i).instrs);
+    @Override
+    public void process(Muchas_instr ld) {
+        if (ld.instrs != null) {
+            ld.instrs.process(this);
+        }
+        if (ld.instr != null) {
+            ld.instr.process(this);
+        }
+    }
+
+    @Override
+    public void process(Una_instr ld) {
+        if (ld.instr != null) {
+            ld.instr.process(this);
+        }
+    }
+
+    @Override
+    public void process(Instr_if i) {
+        if (i.instrs != null) {
+            i.instrs.process(this);
+        }
+    }
+
+    @Override
+    public void process(Instr_ifelse i) {
+        if (i.instrs1 != null) {
+            i.instrs1.process(this);
+        }
+        if (i.instrs2 != null) {
+            i.instrs2.process(this);
+        }
+    }
+
+    @Override
+    public void process(Instr_while i) {
+        if (i.instrs != null) {
+            i.instrs.process(this);
+        }
+    }
+
+    @Override
+    public void process(Instr_compuesta i) {
+        if (i.decs != null) {
+            i.decs.process(this);
+        }
+        if (i.instrs != null) {
+            i.instrs.process(this);
         }
     }
 }
