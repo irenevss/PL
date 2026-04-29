@@ -9,6 +9,9 @@ import errors.GestionErroresTiny.ErrorLexico;
 import errors.GestionErroresTiny.ErrorSintactico;
 import c_ast_descendente.ParseException;
 import c_ast_descendente.TokenMgrError;
+import codigo.GeneracionCodigo;
+import codigo.MaquinaP;
+import semantica.AsignacionEspacio;
 import semantica.ErroresSemanticos;
 import semantica.InfoSemantica;
 import semantica.Pretipado;
@@ -32,9 +35,7 @@ public class DomJudge {
         }
     }
 
-    private static boolean procesaSemantica(SintaxisAbstractaTiny.Prog p) {
-        InfoSemantica info = new InfoSemantica();
-
+    private static boolean procesaSemantica(SintaxisAbstractaTiny.Prog p, InfoSemantica info) {
         ErroresSemanticos erroresVinculacion = new ErroresSemanticos();
         new Vinculacion(erroresVinculacion, info).procesa(p);
         if (erroresVinculacion.hayErrores()) {
@@ -59,6 +60,20 @@ public class DomJudge {
         return true;
     }
 
+    private static void procesaCodigo(SintaxisAbstractaTiny.Prog p, InfoSemantica info, Reader input) {
+        AsignacionEspacio espacio = new AsignacionEspacio(info);
+        espacio.procesa(p);
+
+        int tamDatos = 20000;
+        int tamPila = 10000;
+        int tamHeap = 5000;
+        int nDisplays = 10;
+
+        MaquinaP maquina = new MaquinaP(input, tamDatos, tamPila, tamHeap, nDisplays, espacio.tamGlobal());
+        new GeneracionCodigo(maquina, info, espacio).procesa(p);
+        maquina.ejecuta();
+    }
+
     public static void main(String[] args) throws Exception {
         char selector = (char) System.in.read();
         Reader input = new BISReader(System.in);
@@ -69,7 +84,10 @@ public class DomJudge {
                 parser.disable_tracing();
                 SintaxisAbstractaTiny.Prog astJJ = parser.analiza();
                 if (astJJ != null) {
-                    procesaSemantica(astJJ);
+                    InfoSemantica info = new InfoSemantica();
+                    if (procesaSemantica(astJJ, info)) {
+                        procesaCodigo(astJJ, info, input);
+                    }
                 }
 
             } else if (selector == 'a') {
@@ -79,7 +97,10 @@ public class DomJudge {
                 asint.SintaxisAbstractaTiny.Prog astProg = (asint.SintaxisAbstractaTiny.Prog) asintCup
                         .parse().value;
                 if (astProg != null) {
-                    procesaSemantica(astProg);
+                    InfoSemantica info = new InfoSemantica();
+                    if (procesaSemantica(astProg, info)) {
+                        procesaCodigo(astProg, info, input);
+                    }
                 }
             }
         } catch (TokenMgrError e) {
