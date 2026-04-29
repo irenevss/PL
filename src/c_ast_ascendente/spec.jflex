@@ -49,6 +49,7 @@ LiteralCadena = '([^'\\]|\\b|\\r|\\t|\\n)*'
 %%
 {blanco}               { /* ignore */ }
 {comentario}           { /* ignore */ }
+"$"                    {return ops.unidadEof();}
 {eof}                  { return ops.unidadEof(); }
 
 "program"              { return ops.unievaluada(ClaseLexica.PROGRAM); }
