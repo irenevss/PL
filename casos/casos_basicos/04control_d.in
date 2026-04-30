@@ -1,0 +1,20 @@
+d
+program
+  decvar  x: int;
+  decvar y: int
+--
+  output 'Algoritmo de Euclides\n'; 
+  input x;
+  input y;
+  while x <> y:
+    if x < y:
+       y := y - x
+    else 
+       x := x - y
+    end_if
+  end_while;
+  output 'El MCD es: '; output x; output '\n' 
+end_program
+$$
+640
+50

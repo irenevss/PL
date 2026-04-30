@@ -1,0 +1,18 @@
+d
+program
+ decproc suma(ref x: int, inc: int)  
+  decproc incrementa(dx: int) 
+   x := x +  dx
+  end_proc
+  --
+   @incrementa(inc)
+ end_proc;
+
+ decvar v: int;
+ decvar delta: int
+ --
+  v := 5;
+  delta := 6;
+  @suma(v, delta);
+  output v; output '\n'
+end_program

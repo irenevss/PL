@@ -1,0 +1,16 @@
+a
+program
+ decvar x: int; 
+ decvar y: bool; 
+ decvar z: string; 
+ decvar k: real
+ --
+ x := 25;
+ y := true;
+ z := 'Esto es un mensaje';
+ k := 25.6;
+ output x; output '\n';
+ output y; output '\n';
+ output z; output '\n';
+ output k;  output '\n'
+end_program

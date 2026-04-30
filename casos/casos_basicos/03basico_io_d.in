@@ -1,0 +1,17 @@
+d
+program
+  decvar x: int; 
+  decvar y: int; 
+  decvar z: int
+--
+  input x;
+  output 'LEIDO: '; output x; output '\n';
+  input y;
+  output 'LEIDO: '; output y; output '\n';
+  input z;
+  output 'LEIDO: '; output z
+end_program
+$$
+56
+-45
+789

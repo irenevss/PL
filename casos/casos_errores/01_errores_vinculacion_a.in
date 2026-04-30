@@ -1,0 +1,69 @@
+a
+program
+  ## inicio todo bien vinculado
+  decvar l1: pointer tNodo;
+  dectype tLista: pointer tNodo;
+  dectype tNodo: record
+                   val: int;
+                   sig: tLista 
+                  end_record; 
+  decvar l2: tLista;
+  decproc haz(l: tLista, ref l2: pointer tNodo) 
+    decvar l3: pointer tNodo 
+    --
+    block
+      dectype miInt: int;
+      decvar v: miInt
+      --
+       l := l + l1 + l2 + l3;
+       input l + l1 + l2 + l3;
+       output l + l1 + l2 + l3;
+       if l: l := l1 end_if;
+       if l1: output l2 else output l3 end_if;
+       while l: l2 := l2 end_while
+    end_block
+end_proc;
+decproc p(p: int) 
+ decvar p2: int
+ --
+end_proc;
+decproc r(u: int) 
+  @r(u + 1)
+end_proc
+--
+l1 := (l1 = (l2 + (l1 & (l2 | (l1 < (l2 > (l1 <= (l2 >= (l2 = (l1 <> ((l2+l1).x + - ! l2))))))))) 
+  + (l2 - l1 * ****l1 % l1 / l2)[l1+l2]));
+block
+ decvar l: int 
+ --
+  block
+   decvar l3: int
+   --
+   @haz(l + l2, l3 - l2)
+  end_block
+end_block;
+## hasta aqui todo bien vinculado
+
+## empiezan errores de vinculacion 
+output l + l3;  
+output (nd1 = (nd2 + (nd3 & (nd4 | (nd5 + nd6 - nd7 + nd8 - nd9 + nd10 - 
+         ((nd11+nd12).x + - ! nd13) 
+  + (nd14 - nd15 * ****nd16 % nd17 / nd18)[nd19+nd20])))));
+if x[l1]: output l1[y] end_if;
+if x.x: output *****(y+l1) else output z end_if;
+while x + l1: output l2 + y end_while;
+@noesta (l1,l2);
+block
+  decvar x: pointer entero;
+  decvar una: int;
+  decvar dos: int;
+  decvar una: int;
+  dectype dos: int;
+  decproc una (una: int, tres: int, ref tres: pointer int) 
+    decvar una: int;
+    decvar tres: int
+    --
+  end_proc
+  --
+ end_block
+end_program 

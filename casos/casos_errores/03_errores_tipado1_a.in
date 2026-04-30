@@ -1,0 +1,92 @@
+a
+program
+  decvar x: real;
+  decvar u: pointer int;
+  decvar v: pointer bool;
+  decvar a: array [20] of int;
+  dectype tr: record
+                 ps: array [30] of pointer int;
+                 c: int
+               end_record;  
+  dectype tr2: tr;
+  dectype tr3: tr;
+  decvar r: tr3;
+  decproc p(x: int, ref y: int) 
+    x := *u + y
+  end_proc;
+  decproc p2(x:real, ref y: real) end_proc
+--
+## expresiones bien tipadas
+x := 5;
+x := 5.0;
+output 5 < 6;
+output 5.0 > 6;
+output 5 <= 5.0;
+output 5.0 >= 6.7;
+output 'hola' < 'adios';
+output false = true;
+output u = null;
+output u <> v;
+output 5 + 5;
+output 5 - 5.0;
+output 5.0 * 5;
+output 5.0 / 5.0;
+output *u % 2;
+output - - 5;
+output - - 5.0;
+output ! (((x < 5) | (u <> null)) & true);
+output *(r.ps[a[6]]) + x;
+@p(*u + 5, *u);
+@p2(*u,x);
+new r.ps[25];
+dispose u;
+output *(r.ps[25]);
+output *(r.ps[25]) + 50;
+output 57.9;
+output 'hola';
+if x = 56: 
+  if x < 7: 
+  else
+   while x < 7: 
+    x := x - 1
+   end_while
+  end_if
+end_if;
+
+## expresiones mal tipadas
+x := x = 5;
+output 5 < true;
+output 5.0 = true;
+output ('hola' <> 'hola') = 'adios';
+output u = *u;
+output 5 + 'hola';
+output *u % 2.0;
+output - - 'hola';
+output ! null;
+output r.x;
+output r[5];
+output a[true];
+output a.x;
+@p(*u + 5.0, *u);
+@p(*u + 5, x);
+@p2(x,*u);
+@p2(x,5.0);
+output x + p;
+output x + tr2;
+*u := x;
+new *(r.ps[25]);
+dispose *u;
+input *(r.ps[25]) + 8;
+56.0 := *u;
+input u;
+output u;
+if x:
+  if *u:
+  else 
+   while x:
+    x := x - 1
+   end_while
+  end_if
+end_if
+
+end_program

@@ -1,0 +1,40 @@
+a
+program
+## campos duplicados, vinculaciones a no tipos y dimensiones negativas
+dectype t1: record
+               a: array [-5] of int;
+               b: record
+                     ia: int;
+ 	             ib: int;
+  	             ia: int;
+  	             ib: int
+                   end_record;
+               ia: array [0] of int;
+               ib: array [-1] of int;
+               a: int;
+               b: int
+            end_record;
+ decvar v1: record
+             a: int;
+             b: int;
+             a: int
+            end_record;
+decvar v2: v1;
+decproc p (p1: record a:t1; b: int; a: t1 end_record, ref p2: record a: p; b: p1 end_record) 
+  decvar v: record 
+               a: int;
+               a: p2;
+               a: int
+            end_record  
+  --
+end_proc
+--
+ block 
+  decvar v: record
+             a: v2;
+             b: p;
+             a: p    
+           end_record
+  --
+ end_block
+end_program

@@ -1,0 +1,17 @@
+d
+program
+   decvar lista: pointer record
+                           valores: array [20] of int; 
+                           nValores: int
+                         end_record; 
+   decvar i: int
+ --
+  new lista;
+  input i;
+  input lista->valores[i]; 
+  output *lista.valores[i]; output '\n'; 
+  dispose lista
+end_program
+$$
+7
+5632

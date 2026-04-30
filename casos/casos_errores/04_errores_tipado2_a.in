@@ -1,0 +1,25 @@
+a
+program
+ ## probando la comprobacion de la compatibilidad estructural
+ dectype tLista1: pointer tNodo1; 
+ dectype tNodo1: record
+                  vals: array [10] of int;
+                  sig: tLista1 
+                 end_record;  
+ dectype tLista2: pointer tNodo2;
+ dectype tNodo2: record
+                  vs: array [10] of int;
+                  s: pointer record
+                               valores: array [10] of int;
+                               siguiente: pointer tNodo2
+                             end_record
+                 end_record;
+ decvar l1: tLista1;
+ decvar l2: tLista2;
+ decproc v(l1: tLista1, l2: tLista2) end_proc
+ --
+ l1 := l2;
+ @v(l2,l1);
+ @v(l2);
+ @l1(true + 5, 'hola' & true)
+end_program

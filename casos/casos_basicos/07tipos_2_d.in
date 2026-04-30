@@ -1,0 +1,43 @@
+d
+program
+  dectype tValores: array [20] of int; 
+  dectype tLista:  record
+                     valores: tValores; 
+                     nValores: int 
+                   end_record;
+  decvar lista: tLista;
+  decvar i: int 
+--
+  ## Lectura de la lista
+  output 'Numero de valores?(0-20)\n'; 
+  input lista.nValores;
+  while (lista.nValores < 0) | (lista.nValores > 20): 
+      output 'Numero de valores?(0-20):';
+      input lista.nValores
+  end_while;
+  i :=0;
+  output 'Introduce los valores de la lista\n';
+  while i < lista.nValores: 
+   input lista.valores[i];
+   i := i + 1
+  end_while;
+  
+  ## Escritura de la lista
+  output 'Los valores introducidos son: \n';
+  i:=0;
+  while i < lista.nValores:
+   output lista.valores[i]; output '\n';
+   i := i + 1
+  end_while;
+  output '\n'
+end_program
+$$
+8
+7
+-6
+9
+-60
+345
+56
+43
+1   

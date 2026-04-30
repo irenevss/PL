@@ -1,0 +1,23 @@
+d
+program
+  decproc ack(m: int, n: int, ref resul: int)  
+    if m = 0:
+      resul := n + 1
+    else
+     if (m > 0) & (n = 0): 
+        @ack(m - 1, 1, resul)
+     else
+         block
+          decvar resul_inner: int
+          --
+           @ack(m,n - 1, resul_inner);
+           @ack(m - 1, resul_inner, resul)
+         end_block 
+     end_if
+    end_if
+end_proc;
+decvar resul: int
+--
+   @ack(3 , 6 , resul);
+   output resul; output '\n'
+end_program

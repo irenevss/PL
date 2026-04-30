@@ -1,0 +1,118 @@
+a
+program
+  dectype tPersona: record
+                       nombre: string;
+                       edad: int
+                    end_record;
+  dectype tPersonas: record 
+                      personas: array [80] of tPersona; 
+                      n: int
+                     end_record; 
+ decproc lee_personas(ref personas: tPersonas) 
+    decproc lee_num_personas() 
+        output 'Cuantas personas?[0-80]\n'; 
+        input personas.n;
+        while((personas.n < 0) | (personas.n > 80)):
+            output 'El valor debe estar [0-80]\n';
+            output 'Prueba otra vez\n';
+            input personas.n
+        end_while
+    end_proc;
+   
+    decproc lee_persona(i: int) 
+      output 'Introduce los datos de la persona nº '; output i + 1; output '\n';
+      output 'Nombre?\n';
+      input personas.personas[i].nombre;
+      output 'Edad?\n'; 
+      input personas.personas[i].edad
+    end_proc;
+  decvar i: int
+  --
+  @lee_num_personas();
+  i:=0;
+  while i < personas.n:
+     @lee_persona(i);
+     i:=i + 1
+  end_while
+end_proc;
+decproc ordena_personas(ref personas: tPersonas) 
+   decproc quicksort(i: int, j: int) 
+      decproc redistribuye(i: int, j: int, ref p: int)
+         decproc swap(ref a: tPersona, ref b: tPersona)
+           decvar tmp: tPersona
+           --
+             tmp := a;
+             a := b;
+             b := tmp
+         end_proc; ## swap
+         decvar inf: int;
+         decvar sup: int
+         --
+          inf := i + 1;
+          sup := j + 1;
+          while inf < sup:
+            if personas.personas[inf].nombre >= personas.personas[i].nombre: 
+              sup := sup - 1;
+              @swap(personas.personas[inf],personas.personas[sup])
+            else 
+              inf := inf + 1
+            end_if
+          end_while;
+          sup := sup - 1;
+          @swap(personas.personas[i],personas.personas[sup]);
+          p := sup 
+      end_proc; ## redistribuye
+      decvar p: int
+      --
+        if i<j:
+           @redistribuye(i,j,p);
+           @quicksort(i,p - 1);
+           @quicksort(p + 1,j)
+        end_if
+   end_proc ## quicksort
+   --
+     @quicksort(0,personas.n - 1)
+  end_proc; ## ordena_personas
+
+  decproc muestra_personas(personas: tPersonas) 
+    decproc muestra_persona(persona: tPersona) 
+      output 'nombre:'; output persona.nombre; output ' edad:';
+      output persona.edad; output '\n'
+    end_proc;
+    decvar i: int
+    --
+      i:=0;
+      while i < personas.n:
+         @muestra_persona(personas.personas[i]);
+         i := i + 1
+      end_while
+   end_proc; 
+   
+   decvar personas: tPersonas
+--
+  @lee_personas(personas);
+  @ordena_personas(personas);
+  @muestra_personas(personas)
+end_program
+$$
+10
+Camilo
+23
+Amparo
+21
+Creta
+22
+Marta
+25
+Carlos
+21
+Jose
+22
+Rodrigo
+20
+Sancho
+19
+Virginia
+26
+Javier
+23

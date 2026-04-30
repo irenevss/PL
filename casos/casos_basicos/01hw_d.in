@@ -1,0 +1,4 @@
+d
+program 
+  output 'Hola mundo\n'
+end_program
