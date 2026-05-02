@@ -155,7 +155,7 @@ public class Tipado extends ProcesamientoDef {
         TExp t1 = tipoExp(i.exp1);
         TExp t2 = tipoExp(i.exp2);
         if (!t1.designador) {
-            errores.error(i.exp1, "la parte izquierda debe ser un designador");
+            errores.error(i, "la parte izquierda debe ser un designador");
         }
         if (!compatiblesAsignacion(t1.tipo, t2.tipo)) {
             errores.error(i, "tipos incompatibles en asignacion");
@@ -212,7 +212,7 @@ public class Tipado extends ProcesamientoDef {
     @Override
     public void process(Instr_escritura i) {
         TExp t = tipoExp(i.exp);
-        if (!imprimible(t.tipo)) {
+        if (!imprimible(t.tipo) && t.tipo.kind != Kind.ERROR) {
             errores.error(i.exp, "valor no imprimible");
         }
     }
@@ -255,6 +255,10 @@ public class Tipado extends ProcesamientoDef {
         Nodo d = info.vinculoDe(inv);
         if (!(d instanceof Dec_proc)) {
             errores.error(inv, inv.id + " no es un subprograma");
+            List<Exp> reales = extraeExps(inv.exps);
+            for (Exp real : reales) {
+                tipoExp(real);
+            }
             return;
         }
 
@@ -273,8 +277,14 @@ public class Tipado extends ProcesamientoDef {
             TExp tr = tipoExp(real);
             TVal tf = tipoDeParam(formal);
 
-            if (formal instanceof Param_ref && !tr.designador) {
-                errores.error(real, "designador esperado");
+            if (formal instanceof Param_ref) {
+                if (!tr.designador) {
+                    errores.error(real, "designador esperado");
+                    continue;
+                }
+                if (!compatiblesAsignacion(tf, tr.tipo) || !compatiblesAsignacion(tr.tipo, tf)) {
+                    errores.error(real, "tipo incompatible con tipo de parametro formal");
+                }
                 continue;
             }
             if (!compatiblesAsignacion(tf, tr.tipo)) {
@@ -384,11 +394,13 @@ public class Tipado extends ProcesamientoDef {
             }
             return new TExp(new TVal(Kind.ERROR, null), false);
         }
-        if (e instanceof Exp_mayor || e instanceof Exp_menor || e instanceof Exp_mayor_igual || e instanceof Exp_menor_igual) {
+        if (e instanceof Exp_mayor || e instanceof Exp_menor || e instanceof Exp_mayor_igual
+                || e instanceof Exp_menor_igual) {
             ExpBin b = (ExpBin) e;
             TExp t0 = tipoExp(b.opnd0);
             TExp t1 = tipoExp(b.opnd1);
-            if (esNumerico(t0.tipo.kind) && esNumerico(t1.tipo.kind)) {
+            if ((esNumerico(t0.tipo.kind) && esNumerico(t1.tipo.kind))
+                    || (t0.tipo.kind == Kind.STRING && t1.tipo.kind == Kind.STRING)) {
                 return new TExp(new TVal(Kind.BOOL, null), false);
             }
             if (t0.tipo.kind != Kind.ERROR && t1.tipo.kind != Kind.ERROR) {
@@ -400,7 +412,10 @@ public class Tipado extends ProcesamientoDef {
             ExpBin b = (ExpBin) e;
             TExp t0 = tipoExp(b.opnd0);
             TExp t1 = tipoExp(b.opnd1);
-            if (compatiblesAsignacion(t0.tipo, t1.tipo) || compatiblesAsignacion(t1.tipo, t0.tipo)) {
+            if (compatiblesAsignacion(t0.tipo, t1.tipo) || compatiblesAsignacion(t1.tipo, t0.tipo)
+                    || (t0.tipo.kind == Kind.POINTER && t1.tipo.kind == Kind.POINTER)
+                    || (t0.tipo.kind == Kind.POINTER && t1.tipo.kind == Kind.NULL)
+                    || (t0.tipo.kind == Kind.NULL && t1.tipo.kind == Kind.POINTER)) {
                 return new TExp(new TVal(Kind.BOOL, null), false);
             }
             if (t0.tipo.kind != Kind.ERROR && t1.tipo.kind != Kind.ERROR) {
@@ -444,7 +459,7 @@ public class Tipado extends ProcesamientoDef {
             TExp b = tipoExp(a.opnd0);
             TExp idx = tipoExp(a.opnd1);
             if (idx.tipo.kind != Kind.INT && idx.tipo.kind != Kind.ERROR) {
-                errores.error(a.opnd1, "tipos incompatibles en indexacion");
+                errores.error(e, "tipos incompatibles en indexacion");
             }
             if (b.tipo.kind == Kind.ARRAY) {
                 Tipo_array ta = (Tipo_array) b.tipo.origen;
@@ -516,7 +531,7 @@ public class Tipado extends ProcesamientoDef {
         }
         if (d instanceof Dec_proc) {
             errores.error(id, id.id + " no es variable ni parametro");
-            return new TExp(new TVal(Kind.PROC, null), false);
+            return new TExp(new TVal(Kind.ERROR, null), false);
         }
         return new TExp(new TVal(Kind.ERROR, null), false);
     }
@@ -592,9 +607,7 @@ public class Tipado extends ProcesamientoDef {
                 return compatiblesRecord((Tipo_record) destino.origen, (Tipo_record) origen.origen, visitados);
             }
             if (destino.kind == Kind.POINTER) {
-                Tipo_pointer pd = (Tipo_pointer) destino.origen;
-                Tipo_pointer po = (Tipo_pointer) origen.origen;
-                return compatiblesAsignacion(tipoDeTipo(pd.tipo), tipoDeTipo(po.tipo), visitados);
+                return true;
             }
             return true;
         }

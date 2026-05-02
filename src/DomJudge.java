@@ -10,7 +10,7 @@ import errors.GestionErroresTiny.ErrorSintactico;
 import c_ast_descendente.ParseException;
 import c_ast_descendente.TokenMgrError;
 import codigo.GeneracionCodigo;
-import codigo.MaquinaP;
+import maquinap.MaquinaP;
 import semantica.AsignacionEspacio;
 import semantica.ErroresSemanticos;
 import semantica.InfoSemantica;
@@ -19,21 +19,6 @@ import semantica.Tipado;
 import semantica.Vinculacion;
 
 public class DomJudge {
-    static class BISReader extends InputStreamReader {
-        public BISReader(InputStream is) {
-            super(is);
-        }
-
-        @Override
-        public int read(char[] cbuf, int offset, int length) throws IOException {
-            int c = read();
-            if (c == -1) {
-                return -1;
-            }
-            cbuf[offset] = (char) c;
-            return 1;
-        }
-    }
 
     private static boolean procesaSemantica(SintaxisAbstractaTiny.Prog p, InfoSemantica info) {
         ErroresSemanticos erroresVinculacion = new ErroresSemanticos();
@@ -65,18 +50,19 @@ public class DomJudge {
         espacio.procesa(p);
 
         int tamDatos = 20000;
-        int tamPila = 10000;
-        int tamHeap = 5000;
+        int tamPila = 10000000;
+        int tamHeap = 10000000;
         int nDisplays = 10;
 
-        MaquinaP maquina = new MaquinaP(input, tamDatos, tamPila, tamHeap, nDisplays, espacio.tamGlobal());
+        MaquinaP maquina = new MaquinaP(input, espacio.tamGlobal(), tamPila, tamHeap, nDisplays);
         new GeneracionCodigo(maquina, info, espacio).procesa(p);
         maquina.ejecuta();
     }
 
     public static void main(String[] args) throws Exception {
+        System.setOut(new java.io.PrintStream(System.out, true, "ISO-8859-1"));
         char selector = (char) System.in.read();
-        Reader input = new BISReader(System.in);
+        Reader input = new BISReader(System.in, "ISO-8859-1");
 
         try {
             if (selector == 'd') {

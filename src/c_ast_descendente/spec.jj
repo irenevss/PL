@@ -393,25 +393,27 @@ Instr Instr() :
 Instr InstrAsig() :
 {
    Exp e1,e2;
+   Token op;
 }
 {
-   e1=E0() <ASIGNACION> e2=E0()
-      { return sem.instr_asig(e1,e2); }
+   e1=E0() op=<ASIGNACION> e2=E0()
+      { return (Instr)sem.instr_asig(e1,e2).ponFila(op.beginLine).ponCol(op.beginColumn); }
 }
 
 Instr InstrIfOrIfElse() :
 {
    Exp e;
    Instrs_0 li1, li2;
+   Token t;
 }
 {
-   <IF> e=E0() <DOS_PUNTOS> li1=LInstr_0()
+   t=<IF> e=E0() <DOS_PUNTOS> li1=LInstr_0()
    (
       <ELSE> li2=LInstr_0() <END_IF>
-      { return sem.instr_ifelse(e, li1, li2); }
+      { return (Instr)sem.instr_ifelse(e, li1, li2).ponFila(t.beginLine).ponCol(t.beginColumn); }
    |
       <END_IF>
-      { return sem.instr_if(e, li1); }
+      { return (Instr)sem.instr_if(e, li1).ponFila(t.beginLine).ponCol(t.beginColumn); }
    )
 }
 
@@ -419,46 +421,51 @@ Instr InstrWhile() :
 {
    Exp e;
    Instrs_0 li;
+   Token t;
 }
 {
-   <WHILE> e=E0() <DOS_PUNTOS> li=LInstr_0() <END_WHILE>
-      { return sem.instr_while(e,li); }
+   t=<WHILE> e=E0() <DOS_PUNTOS> li=LInstr_0() <END_WHILE>
+      { return (Instr)sem.instr_while(e,li).ponFila(t.beginLine).ponCol(t.beginColumn); }
 }
 
 Instr InstrLectura() :
 {
    Exp e;
+   Token t;
 }
 {
-   <INPUT> e=E0()
-      { return sem.instr_lectura(e); }
+   t=<INPUT> e=E0()
+      { return (Instr)sem.instr_lectura(e).ponFila(t.beginLine).ponCol(t.beginColumn); }
 }
 
 Instr InstrEscritura() :
 {
    Exp e;
+   Token t;
 }
 {
-   <OUTPUT> e=E0()
-      { return sem.instr_escritura(e); }
+   t=<OUTPUT> e=E0()
+      { return (Instr)sem.instr_escritura(e).ponFila(t.beginLine).ponCol(t.beginColumn); }
 }
 
 Instr InstrReserva() :
 {
    Exp e;
+   Token t;
 }
 {
-   <NEW> e=E0()
-      { return sem.instr_reserva(e); }
+   t=<NEW> e=E0()
+      { return (Instr)sem.instr_reserva(e).ponFila(t.beginLine).ponCol(t.beginColumn); }
 }
 
 Instr InstrLiberacion() :
 {
    Exp e;
+   Token t;
 }
 {
-   <DISPOSE> e=E0()
-      { return sem.instr_liberacion(e); }
+   t=<DISPOSE> e=E0()
+      { return (Instr)sem.instr_liberacion(e).ponFila(t.beginLine).ponCol(t.beginColumn); }
 }
 
 Instr InstrInvocar() :
@@ -475,10 +482,11 @@ Instr InstrCompuesta() :
 {
    LDec_0 d;
    Instrs_0 i;
+   Token t;
 }
 {
-   <BLOCK> d=LDec_0() i=Instrs_0() <END_BLOCK>
-      { return sem.instr_compuesta(d,i); }
+   t=<BLOCK> d=LDec_0() i=Instrs_0() <END_BLOCK>
+      { return (Instr)sem.instr_compuesta(d,i).ponFila(t.beginLine).ponCol(t.beginColumn); }
 }
 
 LExps_0 LExps_0() :
@@ -711,10 +719,10 @@ Exp E6() :
       { return (Exp)sem.lit_real(t.image).ponFila(t.beginLine).ponCol(t.beginColumn); }
 |
    t=<TRUE>
-      { return (Exp)sem.lit_bool("<" + t.image + ">").ponFila(t.beginLine).ponCol(t.beginColumn); }
+      { return (Exp)sem.lit_bool(t.image).ponFila(t.beginLine).ponCol(t.beginColumn); }
 |
    t=<FALSE>
-      { return (Exp)sem.lit_bool("<" + t.image + ">").ponFila(t.beginLine).ponCol(t.beginColumn); }
+      { return (Exp)sem.lit_bool(t.image).ponFila(t.beginLine).ponCol(t.beginColumn); }
 |
    t=<CADENA_LITERAL>
       { return (Exp)sem.lit_string(t.image).ponFila(t.beginLine).ponCol(t.beginColumn); }

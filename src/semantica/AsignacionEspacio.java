@@ -127,13 +127,16 @@ public class AsignacionEspacio extends ProcesamientoDef {
             int dirAnt = dir;
             int maxDirAnt = maxDir;
             nivel++;
-            dir = 0;
-            maxDir = 0;
+            dir = 2;
+            maxDir = 2;
             if (d.params != null) {
                 d.params.process(this);
             }
             if (d.decs != null) {
                 d.decs.process(this);
+            }
+            if (d.instrs != null) {
+                d.instrs.process(this);
             }
             nivelProc.put(d, nivel);
             tamDatosProc.put(d, maxDir);
@@ -144,13 +147,16 @@ public class AsignacionEspacio extends ProcesamientoDef {
             int dirAnt = dir;
             int maxDirAnt = maxDir;
             nivel++;
-            dir = 0;
-            maxDir = 0;
+            dir = 2;
+            maxDir = 2;
             if (d.params != null) {
                 d.params.process(this);
             }
             if (d.decs != null) {
                 d.decs.process(this);
+            }
+            if (d.instrs != null) {
+                d.instrs.process(this);
             }
             dir = dirAnt;
             maxDir = maxDirAnt;

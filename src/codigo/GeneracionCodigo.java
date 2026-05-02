@@ -2,9 +2,10 @@ package codigo;
 
 import asint.ProcesamientoDef;
 import asint.SintaxisAbstractaTiny.*;
-import codigo.MaquinaP.Instr;
-import codigo.MaquinaP.Label;
-import codigo.MaquinaP.Op;
+import maquinap.MaquinaP.Instr;
+import maquinap.MaquinaP.Label;
+import maquinap.MaquinaP.Op;
+import maquinap.MaquinaP;
 import semantica.AsignacionEspacio;
 import semantica.InfoSemantica;
 
@@ -238,7 +239,6 @@ public class GeneracionCodigo extends ProcesamientoDef {
     public void process(Instr_reserva i) {
         TipoValue t = tipoExp(i.exp);
         genCod(i.exp, true);
-        maquina.addInstr(maquina.instruccion(Op.APILA_IND));
         int tam = tamanioTipo(desreferencia(t.tipo).tipo);
         maquina.addInstr(maquina.instruccion(Op.ALLOC, tam));
         maquina.addInstr(maquina.instruccion(Op.DESAPILA_IND));
@@ -247,8 +247,7 @@ public class GeneracionCodigo extends ProcesamientoDef {
     @Override
     public void process(Instr_liberacion i) {
         TipoValue t = tipoExp(i.exp);
-        genCod(i.exp, true);
-        maquina.addInstr(maquina.instruccion(Op.APILA_IND));
+        genCod(i.exp, false);
         int tam = tamanioTipo(desreferencia(t.tipo).tipo);
         maquina.addInstr(maquina.instruccion(Op.DEALLOC, tam));
     }
@@ -267,10 +266,12 @@ public class GeneracionCodigo extends ProcesamientoDef {
         }
         int nivel = espacio.nivel(proc);
         int tam = espacio.tamDatos(proc);
-        int retorno = maquina.programaSize() + 1; // next instruction address
-        maquina.addInstr(maquina.instruccion(Op.ACTIVA, nivel, tam, retorno));
+        Label returnLabel = new Label();
+        maquina.addInstr(maquina.instruccion(Op.ACTIVA, nivel, tam, returnLabel));
         generaPasoParametros(proc.params, i.exps);
+        maquina.addInstr(maquina.instruccion(Op.FIJAD, nivel));
         maquina.addInstr(maquina.instruccion(Op.IR_A, label));
+        maquina.setLabelAddress(returnLabel);
     }
 
     @Override
@@ -413,13 +414,11 @@ public class GeneracionCodigo extends ProcesamientoDef {
             genCodAddress(exp);
             return;
         }
-        if (esDesignador(exp) && esEstructurado(tipoExp(exp))) {
+        if (esDesignador(exp)) {
             genCodAddress(exp);
-            return;
-        }
-        if (exp instanceof Iden) {
-            genCodAddress(exp);
-            maquina.addInstr(maquina.instruccion(Op.APILA_IND));
+            if (!esEstructurado(tipoExp(exp))) {
+                maquina.addInstr(maquina.instruccion(Op.APILA_IND));
+            }
             return;
         }
         if (exp instanceof Lit_int) {
@@ -431,7 +430,9 @@ public class GeneracionCodigo extends ProcesamientoDef {
             return;
         }
         if (exp instanceof Lit_bool) {
-            maquina.addInstr(maquina.instruccion(Op.APILA_BOOL, Boolean.parseBoolean(((Lit_bool) exp).val)));
+            String val = ((Lit_bool) exp).val;
+            boolean b = val.equals("<true>") || val.equals("true");
+            maquina.addInstr(maquina.instruccion(Op.APILA_BOOL, b));
             return;
         }
         if (exp instanceof Lit_string) {
@@ -574,7 +575,9 @@ public class GeneracionCodigo extends ProcesamientoDef {
             Exp_flecha c = (Exp_flecha) exp;
             genCod(c.base, true);
             maquina.addInstr(maquina.instruccion(Op.APILA_IND));
-            int offset = desplazamientoCampo(resuelveTipo(tipoExp(c.base)).tipo, c.id);
+            TipoValue baseType = resuelveTipo(tipoExp(c.base));
+            TipoValue pointedType = desreferencia(baseType.tipo);
+            int offset = desplazamientoCampo(resuelveTipo(pointedType).tipo, c.id);
             maquina.addInstr(maquina.instruccion(Op.APILA_INT, offset));
             maquina.addInstr(maquina.instruccion(Op.SUMA));
             return;
@@ -633,7 +636,9 @@ public class GeneracionCodigo extends ProcesamientoDef {
             Exp_flecha c = (Exp_flecha) exp;
             genCod(c.base, true);
             maquina.addInstr(maquina.instruccion(Op.APILA_IND));
-            int offset = desplazamientoCampo(resuelveTipo(tipoExp(c.base)).tipo, c.id);
+            TipoValue baseType = resuelveTipo(tipoExp(c.base));
+            TipoValue pointedType = desreferencia(baseType.tipo);
+            int offset = desplazamientoCampo(resuelveTipo(pointedType).tipo, c.id);
             maquina.addInstr(maquina.instruccion(Op.APILA_INT, offset));
             maquina.addInstr(maquina.instruccion(Op.SUMA));
             return;
@@ -644,7 +649,8 @@ public class GeneracionCodigo extends ProcesamientoDef {
             maquina.addInstr(maquina.instruccion(Op.APILA_IND));
             return;
         }
-        throw new RuntimeException("No se puede generar direccion para la expresion: " + exp.getClass().getSimpleName());
+        throw new RuntimeException(
+                "No se puede generar direccion para la expresion: " + exp.getClass().getSimpleName());
     }
 
     private void generaPasoParametros(LProcParams_0 formales, LExps_0 reales) {
@@ -685,8 +691,9 @@ public class GeneracionCodigo extends ProcesamientoDef {
 
     private void genCod(Param formal, Exp actual) {
         int dir = espacio.dir(formal);
-        int nivel = espacio.nivel(formal);
-        maquina.addInstr(maquina.instruccion(Op.APILAD, nivel, dir));
+        maquina.addInstr(maquina.instruccion(Op.DUP));
+        maquina.addInstr(maquina.instruccion(Op.APILA_INT, dir));
+        maquina.addInstr(maquina.instruccion(Op.SUMA));
         if (formal instanceof Param_ref) {
             genCod(actual, true);
             maquina.addInstr(maquina.instruccion(Op.DESAPILA_IND));

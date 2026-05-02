@@ -48,7 +48,7 @@ public class ErroresSemanticos {
         errores.stream()
                 .sorted(Comparator.comparingInt((ErrorSemantico e) -> e.fila)
                         .thenComparingInt(e -> e.col))
-                .forEach(e -> lineas.add(prefijo + " fila: " + e.fila + " col: " + e.col));
+                .forEach(e -> lineas.add(prefijo + " fila:" + e.fila + " col:" + e.col));
         for (String linea : lineas) {
             System.out.println(linea);
         }

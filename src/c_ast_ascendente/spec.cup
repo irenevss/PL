@@ -32,7 +32,7 @@ terminal PROGRAM, END_PROGRAM, INT, REAL, BOOL, STRING, NULL, TRUE, FALSE,
          MENOR, MAYOR, MENOR_IGUAL, MAYOR_IGUAL, IGUAL, DISTINTO, PAP, 
          PCIERRE, PUNTO_COMA, DOS_PUNTOS, ASIGNACION, CAP, CCIERRE, PUNTO, 
          FLECHA, AND, OR, NOT, ARROBA, COMA, SEPARADOR, ID, LITERAL_ENTERO, 
-         LITERAL_REAL, CADENA_LITERAL;
+         LITERAL_REAL, CADENA_LITERAL, UNARY_POR;
 
 non terminal Prog S;
 non terminal LDec_0 LDec_0;
@@ -58,6 +58,7 @@ precedence left MAS, MENOS;
 precedence left POR, DIV, MOD;
 precedence right NOT;
 precedence left CAP, PUNTO, FLECHA;
+precedence right UNARY_POR;
 
 S ::= PROGRAM LDec_0:l1 Instrs_0:i1 END_PROGRAM {: RESULT = new Prog(l1, i1); :};
 
@@ -100,16 +101,16 @@ Instrs_0 ::= LInstr:l {: RESULT = new Si_instr(l); :}
 LInstr ::= LInstr:l1 PUNTO_COMA Instr:i {: RESULT = new Muchas_instr(l1, i); :}
          | Instr:i {: RESULT = new Una_instr(i); :};
 
-Instr ::= E:e1 ASIGNACION E:e2 {: RESULT = new Instr_asig(e1, e2); :}
-        | IF E:e DOS_PUNTOS Instrs_0:l END_IF {: RESULT = new Instr_if(e, l); :}
-        | IF E:e DOS_PUNTOS Instrs_0:l1 ELSE Instrs_0:l2 END_IF {: RESULT = new Instr_ifelse(e, l1, l2); :}
-        | WHILE E:e DOS_PUNTOS Instrs_0:l END_WHILE {: RESULT = new Instr_while(e, l); :}
-        | INPUT E:e {: RESULT = new Instr_lectura(e); :}
-        | OUTPUT E:e {: RESULT = new Instr_escritura(e); :}
-        | NEW E:e {: RESULT = new Instr_reserva(e); :}
-        | DISPOSE E:e {: RESULT = new Instr_liberacion(e); :}
+Instr ::= E:e1 ASIGNACION:op E:e2 {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Instr_asig(e1, e2); RESULT.ponFila(ul.fila()); RESULT.ponCol(ul.columna()); :}
+        | IF:op E:e DOS_PUNTOS Instrs_0:l END_IF {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Instr_if(e, l); RESULT.ponFila(ul.fila()); RESULT.ponCol(ul.columna()); :}
+        | IF:op E:e DOS_PUNTOS Instrs_0:l1 ELSE Instrs_0:l2 END_IF {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Instr_ifelse(e, l1, l2); RESULT.ponFila(ul.fila()); RESULT.ponCol(ul.columna()); :}
+        | WHILE:op E:e DOS_PUNTOS Instrs_0:l END_WHILE {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Instr_while(e, l); RESULT.ponFila(ul.fila()); RESULT.ponCol(ul.columna()); :}
+        | INPUT:op E:e {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Instr_lectura(e); RESULT.ponFila(ul.fila()); RESULT.ponCol(ul.columna()); :}
+        | OUTPUT:op E:e {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Instr_escritura(e); RESULT.ponFila(ul.fila()); RESULT.ponCol(ul.columna()); :}
+        | NEW:op E:e {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Instr_reserva(e); RESULT.ponFila(ul.fila()); RESULT.ponCol(ul.columna()); :}
+        | DISPOSE:op E:e {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Instr_liberacion(e); RESULT.ponFila(ul.fila()); RESULT.ponCol(ul.columna()); :}
         | ARROBA ID:i PAP ProcActualParams_0:p PCIERRE {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Instr_invocar(ul.lexema(), p, ul.fila(), ul.columna()); :}
-        | BLOCK LDec_0:l Instrs_0:i END_BLOCK {: RESULT = new Instr_compuesta(l, i); :};
+        | BLOCK:op LDec_0:l Instrs_0:i END_BLOCK {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Instr_compuesta(l, i); RESULT.ponFila(ul.fila()); RESULT.ponCol(ul.columna()); :};
 
 ProcActualParams_0 ::= ProcActualParams:p {: RESULT = new Si_exps(p); :}
                      | {: RESULT = new No_exps(); :};
@@ -132,7 +133,7 @@ E ::= E:e1 MAS:op E:e2 {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp_s
     | E:e1 OR:op E:e2 {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp_or(e1, e2, ul.fila(), ul.columna()); :}
     | MENOS:op E:e {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp_menos_unario(e, ul.fila(), ul.columna()); :} %prec NOT
     | NOT:op E:e {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp_not(e, ul.fila(), ul.columna()); :}
-    | POR:op E:e {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp_asterisco_unario(e, ul.fila(), ul.columna()); :} %prec NOT
+    | POR:op E:e {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp_asterisco_unario(e, ul.fila(), ul.columna()); :} %prec UNARY_POR
     | E:e CAP:op E:e0 CCIERRE {: UnidadLexica ul = (UnidadLexica)op; RESULT = new Exp_array(e, e0, ul.fila(), ul.columna()); :}
     | E:e PUNTO ID:i {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Exp_campo(e, ul.lexema(), ul.fila(), ul.columna()); :}
     | E:e FLECHA ID:i {: UnidadLexica ul = (UnidadLexica)i; RESULT = new Exp_flecha(e, ul.lexema(), ul.fila(), ul.columna()); :}
